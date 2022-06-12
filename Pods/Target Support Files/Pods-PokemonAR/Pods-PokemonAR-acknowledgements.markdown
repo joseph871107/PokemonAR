@@ -1,9 +1,9 @@
 # Acknowledgements
 This application makes use of the following third party libraries:
 
-## TensorFlowLiteTaskVision
+## TensorFlowLiteSwift
 
-Copyright 2020 The TensorFlow Authors.  All rights reserved.
+Copyright 2019 The TensorFlow Authors.  All rights reserved.
 
                                  Apache License
                            Version 2.0, January 2004

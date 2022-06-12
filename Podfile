@@ -6,6 +6,6 @@ target 'PokemonAR' do
   use_frameworks!
 
   # Pods for PokemonAR
-  pod 'TensorFlowLiteTaskVision'
+  pod 'TensorFlowLiteSwift'
 
 end

@@ -13,15 +13,31 @@
 // limitations under the License.
 
 import UIKit
+import SwiftUI
+import FirebaseCore
 
-@UIApplicationMain
+//@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        FirebaseApp.configure()
 
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-  ) -> Bool {
-    return true
+        return true
+    }
+}
+
+@main
+struct PokemonAR: App {
+  // register app delegate for Firebase setup
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+  var body: some Scene {
+    WindowGroup {
+      NavigationView {
+        MainAuthView()
+//          AccountSettingView()
+      }
+    }
   }
 }
