@@ -31,6 +31,7 @@ struct MainTabView: View {
                     Label("Setting", systemImage: "gear")
                 }
         }
+        .edgesIgnoringSafeArea(.all)
         .environmentObject(userSession)
     }
 }

@@ -22,9 +22,11 @@ struct LoginView: View {
             WelcomeText()
             UserImage(user_image: $user_image)
             InputCredential(username: $username, password: $password)
-            LoginButton(userSession: userSession, username: $username, password: $password)
+            LoginButton(username: $username, password: $password)
+            DemoLoginView()
         }
         .padding()
+        .environmentObject(userSession)
     }
 }
 
@@ -96,7 +98,7 @@ struct LoginButtonContent : View {
 }
 
 struct LoginButton : View {
-    var userSession: UserSessionModel
+    @EnvironmentObject var userSession: UserSessionModel
     
     @Binding var username: String
     @Binding var password: String
@@ -153,5 +155,18 @@ struct LoginButton : View {
             }
             .disabled(disable)
         }
+    }
+}
+
+struct DemoLoginView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
+    var body: some View {
+        Button(action: {
+            userSession.loginDemo()
+        }, label: {
+            Text("demo login")
+                .font(.caption)
+        })
     }
 }

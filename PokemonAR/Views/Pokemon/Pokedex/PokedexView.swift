@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct PokedexView: View {
     @EnvironmentObject var userSession: UserSessionModel
@@ -14,6 +15,7 @@ struct PokedexView: View {
     @State var selectedPokemonIndex: Int = 0
     
     @StateObject var pokebag = PokeBagViewModel()
+    @State private var logOutTrigger: AnyCancellable?
     
     var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     
@@ -36,6 +38,8 @@ struct PokedexView: View {
                             Text("Add demo")
                         })
                     }
+                    .padding(-10)
+                    Spacer()
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
 #endif
@@ -61,17 +65,23 @@ struct PokedexView: View {
                         pokebag.pokemons.append(Pokemon(pokedexId: 1))
                     })
                     .foregroundColor(.white)
-                    .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
             .sheet(isPresented: $show) {
                 PokemonView(index: $selectedPokemonIndex)
                     .environmentObject(pokebag)
             }
             .onAppear(perform: {
-                pokebag.updateUser(userID: userSession.user?.uid ?? "")
+                logOutTrigger = userSession.objectWillChange.sink { result in
+                    if let _ = userSession.user {
+                        
+                    } else {
+                        pokebag.stopListening()
+                    }
+                }
+                if let user = userSession.user {
+                    pokebag.updateUser(userID: userSession.user?.uid ?? "")
+                }
             })
         }
     }

@@ -17,16 +17,12 @@ struct MainAuthView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack{
-                if userSession.isLogged {
-                    MainTabView()
-                } else {
-                    LoginView()
-                }
-            }
-            .transition(.slide)
-            .environmentObject(userSession)
+        if userSession.isLogged {
+            MainTabView()
+                .environmentObject(userSession)
+        } else {
+            LoginView()
+                .environmentObject(userSession)
         }
     }
 }

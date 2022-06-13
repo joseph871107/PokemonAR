@@ -199,11 +199,9 @@
 		7018BE3D2856574B00311E26 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				7018BEC52857A04A00311E26 /* Account */,
 				7018BEBC28576B0800311E26 /* Utils */,
 				7018BE5728565C2B00311E26 /* Pokemon */,
-				7018BE482856577000311E26 /* AccountSetting */,
-				7018BE3F2856575E00311E26 /* AccountSettingView.swift */,
-				7018BE412856576000311E26 /* HomeView.swift */,
 				7018BE422856576100311E26 /* LoginView.swift */,
 				7018BE3E2856575C00311E26 /* MainAuthView.swift */,
 				7018BE61285660C300311E26 /* MainTabView.swift */,
@@ -261,6 +259,16 @@
 				7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		7018BEC52857A04A00311E26 /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				7018BE482856577000311E26 /* AccountSetting */,
+				7018BE3F2856575E00311E26 /* AccountSettingView.swift */,
+				7018BE412856576000311E26 /* HomeView.swift */,
+			);
+			path = Account;
 			sourceTree = "<group>";
 		};
 		A35BE145980A216CC3A6A0A6 /* Frameworks */ = {

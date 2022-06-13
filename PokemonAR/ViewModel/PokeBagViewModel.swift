@@ -20,6 +20,7 @@ class PokeBagViewModel: ObservableObject {
             return "pokeBag_\(userID)"
         }
     }
+    private var listener: ListenerRegistration?
     
     @Published var userID = ""
     @Published var pokemons = [Pokemon]() {
@@ -39,7 +40,9 @@ class PokeBagViewModel: ObservableObject {
             self.pokemons = snapshotRef?.documents.map({ document in
                 try! document.data(as: Pokemon.self)
             }) ?? []
+            self.pokemons = self.pokemons.sorted(by: { $0.createDate > $1.createDate })
         })
+        
         listenChange()
         print("[PokeBagViewModel] - Start listening for \(userID) | \(dbName)")
     }
@@ -67,7 +70,7 @@ class PokeBagViewModel: ObservableObject {
     
     func listenChange() {
         print("[listenChange] - Start listening changes")
-        store.collection(dbName).addSnapshotListener { snapshot, error in
+        self.listener = store.collection(dbName).addSnapshotListener { snapshot, error in
 //            DispatchQueue.main.async {
                 guard let snapshot = snapshot else { return }
                 snapshot.documentChanges.forEach { documentChange in
@@ -118,6 +121,11 @@ class PokeBagViewModel: ObservableObject {
                 }
 //            }
         }
+    }
+    
+    func stopListening() {
+        self.listener?.remove()
+        self.listener = nil
     }
     
     func addDemo() {

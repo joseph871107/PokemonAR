@@ -7,7 +7,15 @@
 //
 
 import Foundation
+import UIKit
+
 import FirebaseAuth
+
+extension UIImage {
+    static var demo_cat: UIImage {
+        return UIImage(named: "demo_cat")!
+    }
+}
 
 class UserSessionModel: ObservableObject {
     static var session: UserSessionModel?
@@ -16,6 +24,14 @@ class UserSessionModel: ObservableObject {
     
     @Published
     var isLogged = false
+    
+    var userImg: UIImage {
+        if let user = user {
+            return UIImage.demo_cat
+        } else {
+            return UIImage.demo_cat
+        }
+    }
     
     init() {
         self.updateUser()
@@ -93,7 +109,9 @@ class UserSessionModel: ObservableObject {
         }
     }
     
-    func loginDemo(completion: @escaping (CompletionResult) -> Void) {
+    func loginDemo(completion: @escaping (CompletionResult) -> Void = { result in
+        
+    }) {
         self.login(username: LoginCredential.Demo.username, password: LoginCredential.Demo.password, completion: { result in
             completion(result)
         })

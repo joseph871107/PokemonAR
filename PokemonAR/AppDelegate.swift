@@ -34,10 +34,7 @@ struct PokemonAR: App {
 
   var body: some Scene {
     WindowGroup {
-      NavigationView {
         MainAuthView()
-//          AccountSettingView()
-      }
     }
   }
 }
