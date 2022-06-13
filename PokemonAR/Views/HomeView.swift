@@ -37,8 +37,18 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        getHomeView()
     }
+}
+
+func getHomeView() -> some View {
+    let userSession = UserSessionModel()
+    let homeView = HomeView()
+        .environmentObject(userSession)
+    userSession.loginDemo(completion: { result in
+        
+    })
+    return homeView
 }
 
 struct LevelView : View {
@@ -57,26 +67,6 @@ struct SettingTriggerView : View {
     var body: some View {
         Text("Account Setting")
             .padding()
-    }
-}
-
-struct ExperienceView : View {
-    @Binding var value: CGFloat
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .opacity(0.3)
-                    .foregroundColor(Color(UIColor.systemTeal))
-                Rectangle()
-                    .frame(width: min(CGFloat(self.value) * geometry.size.width, geometry.size.width), height: geometry.size.height)
-                    .foregroundColor(Color(UIColor.systemGreen))
-                    .animation(.linear)
-            }
-            .cornerRadius(45.0)
-        }
     }
 }
 

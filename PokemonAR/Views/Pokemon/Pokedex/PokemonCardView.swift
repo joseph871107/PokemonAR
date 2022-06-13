@@ -8,20 +8,24 @@
 import SwiftUI
 
 struct PokemonCardView: View {
-    @State var pokemon: Pokemon
+    @State static var cardInstances = [PokemonCardView]()
+    
+    @EnvironmentObject var pokebag: PokeBagViewModel
+    var index: Int
     
     var body: some View {
         ZStack {
+            Color.orange
+                .ignoresSafeArea()
             Image(uiImage: pokemon.info.image)
                 .interpolation(.none)
                 .resizable()
 //                .scaledToFit()
                 .aspectRatio(contentMode: .fit)
-                .background(Color.orange)
 
             VStack {
-                Text(pokemon.info.name.english)
-                    .font(.title3)
+                Text(pokemon.name)
+                    .font(.caption)
                     .fontWeight(.black)
                     .foregroundColor(.primary)
                     .lineLimit(3)
@@ -40,17 +44,30 @@ struct PokemonCardView: View {
         .padding([.top, .horizontal])
         .shadow(radius: 10)
     }
+    
+    var pokemon: Pokemon {
+        pokebag.pokemons[index]
+    }
 }
 
 struct PokemonCardView_Previews: PreviewProvider {
-    @Namespace static var namespace
     static var gridItemLayout = [GridItem(.flexible())]
     
     static var previews: some View {
         ScrollView {
             LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                PokemonCardView(pokemon: Pokemon(pokedexId: 1))
+                getPokebag()
             }
         }
     }
+}
+
+func getPokebag() -> some View {
+    let pokebag = PokeBagViewModel()
+    pokebag.pokemons.append(Pokemon(pokedexId: 1))
+    
+    let pokemonCardView = PokemonCardView(index: 0)
+        .environmentObject(pokebag)
+
+    return pokemonCardView
 }

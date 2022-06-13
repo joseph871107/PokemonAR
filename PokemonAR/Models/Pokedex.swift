@@ -92,17 +92,40 @@ class Pokedex{
     }
 }
 
-struct Pokemon: Codable, Identifiable {
+struct Pokemon: Codable, Identifiable, Equatable {
     var id = UUID()
+    var createDate = Date()
+    
     var pokedexId: Int
     var experience = 0
+    var displayName: String = ""
     
     var level: Int {
         return (self.experience / 100) + 1
     }
     
+    var remainExperience: Int {
+        return experience - (level - 1) * 100
+    }
+    
+    var remainExperiencePercentage: CGFloat {
+        return CGFloat(Double(remainExperience) / 100.0)
+    }
+    
+    var name: String {
+        if displayName == "" {
+            return info.name.english
+        } else {
+            return displayName
+        }
+    }
+    
     var info: Pokedex.Pokemon {
         Pokedex.getInfoFromId(self.pokedexId)
+    }
+    
+    static func == (lhs: Pokemon, rhs: Pokemon) -> Bool {
+       return lhs.id == rhs.id
     }
 }
 

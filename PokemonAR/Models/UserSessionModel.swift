@@ -10,6 +10,7 @@ import Foundation
 import FirebaseAuth
 
 class UserSessionModel: ObservableObject {
+    static var session: UserSessionModel?
     @Published var user = Auth.auth().currentUser
     @Published var userModel = UserModel()
     
@@ -20,7 +21,9 @@ class UserSessionModel: ObservableObject {
         self.updateUser()
     }
     
-    func create(username: String, password: String, completion: @escaping (CompletionResult) -> Void) {
+    func create(username: String, password: String, completion: @escaping (CompletionResult) -> Void = { result in
+        
+    }) {
         Auth.auth().createUser(withEmail: username, password: password) { result, error in
              guard let _ = result?.user,
                    error == nil else {
@@ -31,7 +34,9 @@ class UserSessionModel: ObservableObject {
         }
     }
     
-    func login(username: String, password: String, completion: @escaping (CompletionResult) -> Void) {
+    func login(username: String, password: String, completion: @escaping (CompletionResult) -> Void = { result in
+        
+    }) {
         if (
             username == LoginCredential.Demo.username &&
             password == LoginCredential.Demo.password
@@ -64,7 +69,9 @@ class UserSessionModel: ObservableObject {
         }
     }
     
-    func logout(completion: @escaping (CompletionResult) -> Void) {
+    func logout(completion: @escaping (CompletionResult) -> Void = { result in
+        
+    }) {
         do {
             try Auth.auth().signOut()
             self.updateUser()
@@ -74,15 +81,15 @@ class UserSessionModel: ObservableObject {
         }
     }
     
-    private func updateUser() {
+    func updateUser() {
         self.user = Auth.auth().currentUser
-        self.userModel.data = UserModel.retreiveUserdata(user: self.user!)
-        print(self.userModel.data)
         
         if self.user != nil {
             self.isLogged = true
+            print("[UserSessionModel.swift] - Successfully logged in")
         } else {
             self.isLogged = false
+            print("[UserSessionModel.swift] - Unsuccessfully logged in")
         }
     }
     

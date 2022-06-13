@@ -11,37 +11,68 @@ struct PokedexView: View {
     @EnvironmentObject var userSession: UserSessionModel
     
     @State var show = false
-    @State var selectedPokemon: Pokemon?
+    @State var selectedPokemonIndex: Int = 0
     
-    var pokeBag: PokeBag? {
-        self.userSession.userModel.data?.pokeBag
-    }
+    @StateObject var pokebag = PokeBagViewModel()
     
-    var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible())]
+    var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-        ZStack{
-            ScrollView {
-                LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                    ForEach(pokeBag?.pokemons ?? []) { pokemon in
-                        PokemonCardView(pokemon: pokemon)
-                            .shadow(radius: 10)
-                            .onTapGesture {
-                                withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
-                                    selectedPokemon = pokemon
-                                    show = true
-                                }
-                            }
+        GeometryReader { geometry in
+            ZStack {
+#if DEBUG
+                VStack(alignment: .leading) {
+                    HStack{
+                        Button(action: {
+                            print("Pokebag user ID : \(pokebag.userID)")
+                            pokebag.addPokemon(pokemon: Pokemon(pokedexId: 1))
+                        }, label: {
+                            Text("Add one")
+                        })
+                        Button(action: {
+                            print("Pokebag user ID : \(pokebag.userID)")
+                            pokebag.addDemo()
+                        }, label: {
+                            Text("Add demo")
+                        })
                     }
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+#endif
+            
+                ZStack{
+                    ScrollView {
+                        LazyVGrid(columns: gridItemLayout, spacing: 20) {
+                            ForEach(pokebag.pokemons) { pokemon in
+                                PokemonCardView(index: pokebag.pokemons.firstIndex(of: pokemon)!)
+                                    .environmentObject(pokebag)
+                                    .shadow(radius: 10)
+                                    .onTapGesture {
+                                        selectedPokemonIndex = pokebag.pokemons.firstIndex(of: pokemon)!
+                                        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                                            show = true
+                                        }
+                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                            }
+                        }
+                    }
+                    .onLongPressGesture(perform: {
+                        pokebag.pokemons.append(Pokemon(pokedexId: 1))
+                    })
+                    .foregroundColor(.white)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .onLongPressGesture(perform: {
-                userSession.userModel.data?.pokeBag.pokemons.append(Pokemon(pokedexId: 1))
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .sheet(isPresented: $show) {
+                PokemonView(index: $selectedPokemonIndex)
+                    .environmentObject(pokebag)
+            }
+            .onAppear(perform: {
+                pokebag.updateUser(userID: userSession.user?.uid ?? "")
             })
-        }
-        .foregroundColor(.white)
-        .sheet(isPresented: $show) {
-            PokemonView(pokemon: selectedPokemon ?? Pokemon(pokedexId: 1))
         }
     }
 }
@@ -52,14 +83,15 @@ struct PokedexView_Previews: PreviewProvider {
     }
 }
 
-func getPokedexView() -> PokedexView {
+func getPokedexView() -> some View {
+    let userSession = UserSessionModel()
     let pokedexView = PokedexView()
-    pokedexView.userSession.loginDemo(completion: { result in
+        .environmentObject(userSession)
+    userSession.loginDemo(completion: { result in
         
     })
     return pokedexView
 }
-
 
 extension Color {
     static var pokemonRed: Color {
