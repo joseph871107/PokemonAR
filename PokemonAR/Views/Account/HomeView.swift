@@ -152,14 +152,3 @@ struct NewsTriggerView : View {
         })
     }
 }
-
-extension Image {
-    func circle(width: CGFloat, height: CGFloat) -> some View {
-        let mn = min(width, height)
-        return self.resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: width, height: height)
-            .clipped()
-            .cornerRadius(mn)
-    }
-}

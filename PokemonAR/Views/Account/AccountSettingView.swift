@@ -144,12 +144,3 @@ struct ResetPasswordTriggerView : View {
     }
 }
 
-extension ZStack {
-    func circle(width: CGFloat, height: CGFloat) -> some View {
-        let mn = min(width, height)
-        return self.aspectRatio(contentMode: .fill)
-            .frame(width: width, height: height)
-            .clipped()
-            .cornerRadius(mn)
-    }
-}

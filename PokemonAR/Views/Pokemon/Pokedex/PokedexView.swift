@@ -103,12 +103,6 @@ func getPokedexView() -> some View {
     return pokedexView
 }
 
-extension Color {
-    static var pokemonRed: Color {
-        Color.init(red: 231/255, green: 32/255, blue: 32/255)
-    }
-}
-
 struct PresentablePokedexBase {
     var pokedex_base: Pokedex.Base
     

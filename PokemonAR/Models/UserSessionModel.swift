@@ -11,11 +11,6 @@ import UIKit
 
 import FirebaseAuth
 
-extension UIImage {
-    static var demo_cat: UIImage {
-        return UIImage(named: "demo_cat")!
-    }
-}
 
 class UserSessionModel: ObservableObject {
     static var session: UserSessionModel?
