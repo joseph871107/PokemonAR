@@ -7,25 +7,29 @@
 //
 
 import Foundation
-import UIKit
+import SwiftUI
 
 import FirebaseAuth
 
+import FBSDKLoginKit
 
 class UserSessionModel: ObservableObject {
     static var session: UserSessionModel?
     @Published var user = Auth.auth().currentUser
     @Published var userModel = UserModel()
     
-    @Published
-    var isLogged = false
+    @Published var isLogged = false
     
-    var userImg: UIImage {
+    var userName: String {
         if let user = user {
-            return UIImage.demo_cat
-        } else {
-            return UIImage.demo_cat
+            if let name = user.displayName {
+                return name
+            }
+            
+            return "user_\(user.uid)"
         }
+        
+        return "Not login"
     }
     
     init() {
@@ -84,7 +88,19 @@ class UserSessionModel: ObservableObject {
         
     }) {
         do {
+            print("[UserSessionModel] - Logging out")
+            
+            if self.isFB{
+                print("[UserSessionModel] - Also Logging out Facebook")
+                let loginManager = LoginManager()
+                loginManager.logOut()
+                
+                print("[UserSessionModel] - Facebook Logged out")
+            }
+            
             try Auth.auth().signOut()
+            print("[UserSessionModel] - Logged out")
+            
             self.updateUser()
             completion(CompletionResult(status: true))
         } catch {
@@ -92,7 +108,47 @@ class UserSessionModel: ObservableObject {
         }
     }
     
-    func updateUser() {
+    enum AuthProviders: String {
+        case password = "password"
+        case phone = "phone"
+        case facebook = "facebook.com"
+        case google = "google.com"
+        case apple = "apple.com"
+    }
+    
+    var provider: AuthProviders {
+        if let providerId = Auth.auth().currentUser?.providerData.first?.providerID {
+            if let provider = AuthProviders(rawValue: providerId){
+                return provider
+            }
+        }
+        return .password
+    }
+    
+    var isFB: Bool {
+        return self.provider == .facebook
+    }
+    
+    private func debugProviderInfo() {
+        if let user = user {
+            print("   [provider Info] - \( String(describing: user.providerID ) )")
+            print("   [provider Info] - \( String(describing: user.providerData ) )")
+            print("   [provider Info] - \( String(describing: user.providerData.count ) )")
+            print("   [provider Info] - \( String(describing: user.providerData.description ) )")
+                
+            for i in user.providerData.indices {
+                let data = user.providerData[i]
+                print("   [provider Info] - \( String(describing: data ) )")
+                
+                print("       [provider Data] - \( String(describing: data.uid ) )")
+                print("       [provider Data] - \( String(describing: data.providerID ) )")
+                print("       [provider Data] - \( String(describing: data.hash ) )")
+                print("       [provider Data] - \( String(describing: AuthProviders(rawValue: data.providerID) ) )")
+            }
+        }
+    }
+    
+    func updateUser(isFB: Bool = false) {
         self.user = Auth.auth().currentUser
         
         if self.user != nil {

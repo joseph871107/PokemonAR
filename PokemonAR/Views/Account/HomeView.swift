@@ -27,12 +27,29 @@ struct HomeView: View {
                     }
                     VStack{
                         VStack(alignment: .center) {
-                            Image(uiImage: userSession.userImg)
-                                .circle(width: imgSize, height: imgSize)
-                                .overlay(Circle().stroke(.white, lineWidth: 5))
-                                .shadow(color: Color.black.opacity(0.9), radius: 20)
+                            if let photoURL = userSession.user?.photoURL {
+                                AsyncImage(
+                                    url: photoURL,
+                                    placeholder: {
+                                        SpinnerView()
+                                    },
+                                    image: {
+                                        Image(uiImage: $0)
+                                    }
+                                )
+                                    .frame(width: imgSize, height: imgSize)
+                                    .clipped()
+                                    .cornerRadius(imgSize)
+                                    .overlay(Circle().stroke(.white, lineWidth: 5))
+                                    .shadow(color: Color.black.opacity(0.9), radius: 20)
+                            } else {
+                                Image(uiImage: UIImage.demo_pikachu)
+                                    .circle(width: imgSize, height: imgSize)
+                                    .overlay(Circle().stroke(.white, lineWidth: 5))
+                                    .shadow(color: Color.black.opacity(0.9), radius: 20)
+                            }
                             
-                            Text("Joseph")
+                            Text(userSession.userName)
                                 .font(.largeTitle)
                             Divider()
                             LevelView()

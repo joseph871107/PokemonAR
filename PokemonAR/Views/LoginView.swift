@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import FBSDKLoginKit
 
 struct LoginView: View {
     @EnvironmentObject var userSession: UserSessionModel
@@ -22,6 +23,10 @@ struct LoginView: View {
             InputCredential(username: $username, password: $password)
             LoginButton(username: $username, password: $password)
             DemoLoginView()
+            FBLoginView(onSuccess: { user in
+                userSession.updateUser()
+            })
+            
         }
         .padding()
         .environmentObject(userSession)
