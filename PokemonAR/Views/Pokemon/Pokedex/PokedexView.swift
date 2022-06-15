@@ -38,10 +38,10 @@ struct PokedexView: View {
                             Text("Add demo")
                         })
                     }
-                    .padding(-10)
                     Spacer()
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
+                .zIndex(1)
 #endif
             
                 ZStack{

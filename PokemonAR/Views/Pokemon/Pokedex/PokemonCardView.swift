@@ -28,7 +28,7 @@ struct PokemonCardView: View {
                     .font(.caption)
                     .fontWeight(.black)
                     .foregroundColor(.primary)
-                    .lineLimit(3)
+                    .lineLimit(1)
 
                 Spacer()
                 Text("Level : \(pokemon.level)")
