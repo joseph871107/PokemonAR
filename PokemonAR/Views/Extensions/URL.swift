@@ -29,4 +29,8 @@ extension URL {
             try? FileManager.default.removeItem(at: self)
         }
     }
+    
+    static var demo_pikachu: URL {
+        URL(string: "demo_pikachu")!
+    }
 }

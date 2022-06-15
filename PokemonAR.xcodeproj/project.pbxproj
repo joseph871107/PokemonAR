@@ -39,7 +39,7 @@
 		7018BE5E28565C4C00311E26 /* PokedexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE5B28565C4C00311E26 /* PokedexView.swift */; };
 		7018BE602856601800311E26 /* pokemon.json-master in Resources */ = {isa = PBXBuildFile; fileRef = 7018BE5F2856601400311E26 /* pokemon.json-master */; };
 		7018BE62285660C300311E26 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE61285660C300311E26 /* MainTabView.swift */; };
-		7018BE642856648600311E26 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE632856648600311E26 /* UserModel.swift */; };
+		7018BE642856648600311E26 /* UserDataViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE632856648600311E26 /* UserDataViewModel.swift */; };
 		7018BE67285665B500311E26 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7018BE66285665B500311E26 /* FirebaseAnalytics */; };
 		7018BE69285665B500311E26 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7018BE68285665B500311E26 /* FirebaseAuth */; };
 		7018BE6B285665B500311E26 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7018BE6A285665B500311E26 /* FirebaseFirestore */; };
@@ -65,6 +65,7 @@
 		708C9A35285960E700FAD13B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A34285960E700FAD13B /* FirebaseStorageCombine-Community */; };
 		708C9A372859689000FAD13B /* EditableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A362859688F00FAD13B /* EditableImageView.swift */; };
 		708C9A392859887400FAD13B /* ThemeAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A382859887400FAD13B /* ThemeAccountView.swift */; };
+		708C9A3B2859903A00FAD13B /* UserDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A3A2859903A00FAD13B /* UserDataModel.swift */; };
 		AA9AC59F212D39FC000B4E9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */; };
 		AA9AC5A4212D39FC000B4E9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A2212D39FC000B4E9D /* Main.storyboard */; };
 		AA9AC5A6212D39FD000B4E9D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A5212D39FD000B4E9D /* Assets.xcassets */; };
@@ -106,7 +107,7 @@
 		7018BE5B28565C4C00311E26 /* PokedexView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PokedexView.swift; sourceTree = "<group>"; };
 		7018BE5F2856601400311E26 /* pokemon.json-master */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "pokemon.json-master"; sourceTree = SOURCE_ROOT; };
 		7018BE61285660C300311E26 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		7018BE632856648600311E26 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		7018BE632856648600311E26 /* UserDataViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataViewModel.swift; sourceTree = "<group>"; };
 		7018BEBD28576B9300311E26 /* ExperienceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperienceView.swift; sourceTree = "<group>"; };
 		7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokeBagViewModel.swift; sourceTree = "<group>"; };
 		708C9A0B2858AAA200FAD13B /* FBLoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBLoginView.swift; sourceTree = "<group>"; };
@@ -124,6 +125,7 @@
 		708C9A302859529C00FAD13B /* LabelledDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelledDivider.swift; sourceTree = "<group>"; };
 		708C9A362859688F00FAD13B /* EditableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableImageView.swift; sourceTree = "<group>"; };
 		708C9A382859887400FAD13B /* ThemeAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeAccountView.swift; sourceTree = "<group>"; };
+		708C9A3A2859903A00FAD13B /* UserDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataModel.swift; sourceTree = "<group>"; };
 		AA9AC59B212D39FC000B4E9D /* PokemonAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokemonAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA9AC5A3212D39FC000B4E9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -251,7 +253,7 @@
 			isa = PBXGroup;
 			children = (
 				7018BE4C2856585E00311E26 /* Pokedex.swift */,
-				7018BE632856648600311E26 /* UserModel.swift */,
+				708C9A3A2859903A00FAD13B /* UserDataModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -287,6 +289,7 @@
 			children = (
 				7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */,
 				7018BE4D2856585F00311E26 /* UserSessionModel.swift */,
+				7018BE632856648600311E26 /* UserDataViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -544,10 +547,11 @@
 				708C9A2F28594F4800FAD13B /* SignupView.swift in Sources */,
 				7018BE62285660C300311E26 /* MainTabView.swift in Sources */,
 				7018BE4A2856577C00311E26 /* ImagePicker.swift in Sources */,
-				7018BE642856648600311E26 /* UserModel.swift in Sources */,
+				7018BE642856648600311E26 /* UserDataViewModel.swift in Sources */,
 				7018BEBE28576B9300311E26 /* ExperienceView.swift in Sources */,
 				708C9A1D2858BD0300FAD13B /* UIViewController.swift in Sources */,
 				7018BE4F2856585F00311E26 /* UserSessionModel.swift in Sources */,
+				708C9A3B2859903A00FAD13B /* UserDataModel.swift in Sources */,
 				7018BEC4285781D200311E26 /* PokeBagViewModel.swift in Sources */,
 				708C9A232858CD6900FAD13B /* SpinnerView.swift in Sources */,
 				708C9A132858ADF000FAD13B /* ZStack.swift in Sources */,

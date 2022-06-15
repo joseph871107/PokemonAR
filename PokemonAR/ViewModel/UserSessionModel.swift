@@ -18,10 +18,10 @@ import FBSDKLoginKit
 class UserSessionModel: ObservableObject {
     static var session: UserSessionModel?
     @Published var user = Auth.auth().currentUser
-    @Published var userModel = UserModel()
+    @Published var userModel = UserDataViewModel()
     
     @Published var isLogged = false
-    @Published var photoURL = URL(string: "demo_pikachu")!
+    @Published var photoURL = URL.demo_pikachu
     
     var userName: String {
         if let user = user {
@@ -36,6 +36,7 @@ class UserSessionModel: ObservableObject {
     }
     
     init() {
+        userModel.userSession = self
         self.updateUser()
     }
     
@@ -119,9 +120,13 @@ class UserSessionModel: ObservableObject {
     }) {
         if let user = user {
             let changeRequest = user.createProfileChangeRequest()
-            changeRequest.photoURL = photoURL
+            if photoURL != URL.demo_pikachu {
+                changeRequest.photoURL = photoURL
+            }
             if let displayName = displayName {
-                changeRequest.displayName = displayName
+                if displayName.isEmpty == false {
+                    changeRequest.displayName = displayName
+                }
             }
             changeRequest.commitChanges(completion: { error in
                 guard error == nil else {
@@ -304,7 +309,8 @@ class UserSessionModel: ObservableObject {
     
     func updateUser(isFB: Bool = false) {
         self.user = Auth.auth().currentUser
-        self.photoURL = self.user?.photoURL ?? URL(string: "demo_pikachu")!
+        self.photoURL = self.user?.photoURL ?? URL.demo_pikachu
+        self.userModel.updateUser(userID: self.user?.uid ?? "")
         
         if self.user != nil {
             self.isLogged = true

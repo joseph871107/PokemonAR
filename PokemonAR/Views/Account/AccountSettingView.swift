@@ -13,55 +13,62 @@ struct AccountSettingView: View {
     
     @State var image = UIImage()
     @State var displayName = ""
-    @State var date = Date()
-    @State var gender = "Male"
+    @State var birthday = Date()
+    @State var gender = Gender.NotRevealed
     
     var body: some View {
-        ThemeAccountView(
-            imgSize: 250,
-            imageHolder: {
-                SettingEditableImageView(size: 250, selected_image: $image)
-                    .onChange(of: image, perform: { newImage in
-                        if newImage != UIImage() && newImage != UIImage.demo_cat {
-                            userSession.replaceUserPhoto(user: userSession.user!, image: newImage, completion: { result in
-                                print(result.status)
-                                print(result.message)
-                                
-                                if result.status == true {
-                                    userSession.updateUser()
-                                }
-                            })
+        GeometryReader { geometry in
+            let imgSize = geometry.size.width * 0.5
+            
+            ThemeAccountView(
+                imgSize: imgSize,
+                imageHolder: {
+                    SettingEditableImageView(size: imgSize, selected_image: $image)
+                        .onChange(of: image, perform: { newImage in
+                            if newImage != UIImage() && newImage != UIImage.demo_cat {
+                                userSession.replaceUserPhoto(user: userSession.user!, image: newImage, completion: { result in
+                                    print(result.status)
+                                    print(result.message)
+                                    
+                                    if result.status == true {
+                                        userSession.updateUser()
+                                    }
+                                })
+                            }
+                        })
+                },
+                content: {
+                    VStack{
+                        VStack{
+                            DisplayNameView(displayName: $displayName)
+                                .padding()
+                            BirthdayPickerView(date: $birthday)
+                                .padding()
+                            GenderPickerView(gender: $gender)
+                                .padding()
                         }
-                    })
-            },
-            content: {
-                VStack{
-                    VStack{
-                        DisplayNameView(displayName: $displayName)
-                            .padding()
-                        BirthdayPickerView(date: $date)
-                            .padding()
-                        GenderPickerView(gender: $gender)
-                            .padding()
+                        Spacer()
+                        VStack{
+                            SaveChangesView(displayName: $displayName, birthday: $birthday, gender: $gender)
+                            ResetPasswordTriggerView()
+                        }
                     }
-                    Spacer()
-                    VStack{
-                        SaveChangesView()
-                        ResetPasswordTriggerView()
-                    }
+                    .padding()
+                },
+                toolbarItemsContent: MyToolBarContent()
+            )
+            .environmentObject(userSession)
+            .onAppear(perform: {
+                if let name = userSession.user?.displayName {
+                    self.displayName = name
+                } else {
+                    self.displayName = ""
                 }
-                .padding()
-            },
-            toolbarItemsContent: MyToolBarContent()
-        )
-        .environmentObject(userSession)
-        .onAppear(perform: {
-            if let name = userSession.user?.displayName {
-                displayName = name
-            } else {
-                displayName = ""
-            }
-        })
+                
+                self.birthday = userSession.userModel.data.birthday
+                self.gender = userSession.userModel.data.gender
+            })
+        }
     }
     
     @ToolbarContentBuilder
@@ -149,23 +156,29 @@ struct BirthdayPickerView : View {
 struct GenderPickerView : View {
     @EnvironmentObject var userSession: UserSessionModel
     
-    @Binding var gender: String
+    @Binding var gender: Gender
     
     var body: some View {
         Picker("Gender", selection: $gender, content: {
-            Text("Male").tag("Male")
-            Text("Female").tag("Female")
-            Text("Neither").tag("Neither")
+            ForEach(Gender.allCases, id: \.self) { gender in
+                Text(gender.rawValue).tag("\( gender.rawValue )")
+            }
         })
         .pickerStyle(SegmentedPickerStyle())
     }
 }
 
 struct SaveChangesView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
+    @Binding var displayName: String
+    @Binding var birthday: Date
+    @Binding var gender: Gender
+    
     var body: some View {
         GeometryReader { geometry in
             Button(action: {
-                print("Save Changes")
+                userSession.userModel.saveBasicInfo(displayName: displayName, birthday: birthday, gender: gender)
             }, label: {
                 Text("Save Changes")
                     .frame(width: geometry.size.width, height: 50)
