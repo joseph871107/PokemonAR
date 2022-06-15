@@ -11,7 +11,7 @@ import SwiftUI
 struct SignupView: View {
     @EnvironmentObject var userSession: UserSessionModel
     
-    @State var image = UIImage()
+    @State var image: UIImage? = nil
     @State var username: String = ""
     @State var email: String = ""
     @State var password: String = ""
@@ -25,13 +25,35 @@ struct SignupView: View {
                     SignupEditableImageView(size: imgSize, selected_image: $image)
                 },
                 content: {
-                    VStack {
-                        InputCredentialWithEmail(username: $username, email: $email, password: $password)
-                        SignupButton(image: $image, username: $username, email: $email, password: $password)
-                        Spacer()
+                    GeometryReader { geo in
+                        let width = geo.size.width
+                        
+                        VStack {
+                            InputCredentialWithEmail(username: $username, email: $email, password: $password)
+                                .padding(.bottom, 20)
+                            SignupButton(width: width, image: $image, username: $username, email: $email, password: $password)
+                                .zIndex(1)
+                            LabelledDivider(label: "or", horizontalPadding: width * 0.5 * 0.3)
+                                .padding(.vertical, -20)
+                                .padding(.top, -10)
+                            FBLoginView(
+                                buttonContent: {
+                                    Text("Signup with Facebook")
+                                        .font(.subheadline)
+                                        .frame(width: width, height: 60)
+                                        .turnIntoButtonStyle(.facebookBlue)
+                                },
+                                onSuccess: { user in
+                                    userSession.updateUser()
+                                }
+                            )
+                            .padding(.top, -35)
+                        }
+                        .environmentObject(userSession)
                     }
+                    .padding(.top, imgSize * 0.5)
                     .padding()
-                    .environmentObject(userSession)
+                    .keyboardAdaptive()
                 },
                 toolbarItemsContent: MyToolBarContent()
             )
@@ -55,18 +77,32 @@ struct SignupEditableImageView : View {
     
     @State var size: CGFloat
     
-    @Binding var selected_image: UIImage
+    @Binding var selected_image: UIImage?
     
     var body: some View{
-        EditableImageView(size: size, selected_image: $selected_image, imageContent: {
-            if let image = selected_image {
-                Image(uiImage: image)
-                    .circleWithBorderNShadow(width: size, height: size)
-            } else {
-                Image(uiImage: UIImage.demo_pikachu)
-                    .circleWithBorderNShadow(width: size, height: size)
-            }
-        })
+        VStack{
+            EditableImageView(size: size, selected_image: $selected_image, imageContent: {
+                if let image = selected_image {
+                    Image(uiImage: image)
+                        .circleWithBorderNShadow(width: size, height: size)
+                } else {
+                    Image(uiImage: UIImage.demo_pikachu)
+                        .circleWithBorderNShadow(width: size, height: size)
+                }
+            })
+            .onChange(of: selected_image, perform: { newImage in
+                print(selected_image!.size)
+                print(selected_image!.isNull)
+                print(newImage!.size)
+                print(newImage!.isNull)
+            })
+        }
+    }
+}
+
+class ForceViewUpdate: ObservableObject {
+    func reloadView() {
+        objectWillChange.send()
     }
 }
 
@@ -80,33 +116,37 @@ struct InputCredentialWithEmail : View {
             TextField("Username", text: $username)
                 .autocapitalization(.none)
                 .turnIntoTextFieldStyle()
-                .padding(.bottom, 20)
+//                .padding(.bottom, 20)
+                .keyboardType(.alphabet)
             TextField("Email address", text: $email)
                 .autocapitalization(.none)
                 .turnIntoTextFieldStyle()
-                .padding(.bottom, 20)
+//                .padding(.bottom, 20)
+                .keyboardType(.emailAddress)
             SecureInputView("Password", text: $password)
         }
     }
 }
 
 struct SignupButtonContent : View {
+    var width: CGFloat
+    
     @Binding var disable: Bool
     
     var body: some View {
-        GeometryReader { geometry in
-            Text("Signup")
-                .font(.title)
-                .frame(width: geometry.size.width, height: 60)
-                .turnIntoButtonStyle(disable == false ? .pokemonRed : .gray)
-        }
+        Text("Signup")
+            .font(.headline)
+            .frame(width: width, height: 60)
+            .turnIntoButtonStyle(disable == false ? .pokemonRed : .gray)
     }
 }
 
 struct SignupButton : View {
+    var width: CGFloat
+    
     @EnvironmentObject var userSession: UserSessionModel
     
-    @Binding var image: UIImage
+    @Binding var image: UIImage?
     @Binding var username: String
     @Binding var email: String
     @Binding var password: String
@@ -116,12 +156,13 @@ struct SignupButton : View {
     
     var body: some View {
         let loginDisable = Binding(get: {
-            return (self.username.isEmpty || self.password.isEmpty)
+            return (self.username.isEmpty || self.password.isEmpty || self.email.isEmpty)
         }, set: {_,_ in
 
         })
         
         return ButtonBehaviorContent(
+            width: width,
             action: {
                 self.signup(completion: { result in
                     self.result = "\(String(result.status)) : \(result.message) \(userSession.user?.email ?? "") \(userSession.user?.uid ?? "")"
@@ -141,7 +182,7 @@ struct SignupButton : View {
     }
     
     func signup(completion: @escaping (CompletionResult) -> Void) {
-        userSession.signup(username: username, email: email, password: password, image: image, completion: { result in
+        userSession.signup(username: username, email: email, password: password, image: image ?? .demo_pikachu, completion: { result in
             switch(result.status){
             case true:
                 completion(result)
@@ -154,12 +195,14 @@ struct SignupButton : View {
     }
     
     struct ButtonBehaviorContent : View {
+        var width: CGFloat
+        
         @State var action: () -> Void
         @Binding var disable: Bool
         
         var body: some View {
             Button(action: { action() }) {
-                SignupButtonContent(disable: $disable)
+                SignupButtonContent(width: width, disable: $disable)
             }
             .disabled(disable)
         }

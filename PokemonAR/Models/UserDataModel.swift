@@ -8,6 +8,8 @@
 
 import Foundation
 
+import UIKit
+
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
@@ -23,11 +25,25 @@ struct UserDataModel: Codable, Identifiable {
     static var empty: UserDataModel {
         UserDataModel(id: "", userID: "")
     }
+    
+    var unitsPerLevel: Int {
+        return 1000
+    }
+    
+    var level: Int {
+        return (self.experience / unitsPerLevel) + 1
+    }
+    
+    var remainExperience: Int {
+        return experience - (level - 1) * unitsPerLevel
+    }
+    
+    var remainExperiencePercentage: CGFloat {
+        return CGFloat(Double(remainExperience) / Double(unitsPerLevel))
+    }
 }
 
 enum Gender : String, Codable, CaseIterable {
-    
-    
     case Male
     case Female
     case Neither

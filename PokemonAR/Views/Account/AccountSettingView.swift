@@ -10,8 +10,9 @@ import SwiftUI
 
 struct AccountSettingView: View {
     @EnvironmentObject var userSession: UserSessionModel
+    @Binding var showSettings: Bool
     
-    @State var image = UIImage()
+    @State var image: UIImage? = nil
     @State var displayName = ""
     @State var birthday = Date()
     @State var gender = Gender.NotRevealed
@@ -25,7 +26,7 @@ struct AccountSettingView: View {
                 imageHolder: {
                     SettingEditableImageView(size: imgSize, selected_image: $image)
                         .onChange(of: image, perform: { newImage in
-                            if newImage != UIImage() && newImage != UIImage.demo_cat {
+                            if let newImage = newImage {
                                 userSession.replaceUserPhoto(user: userSession.user!, image: newImage, completion: { result in
                                     print(result.status)
                                     print(result.message)
@@ -38,21 +39,28 @@ struct AccountSettingView: View {
                         })
                 },
                 content: {
-                    VStack{
+                    GeometryReader { geo in
+                        let width = geo.size.width
+                        
                         VStack{
-                            DisplayNameView(displayName: $displayName)
-                                .padding()
-                            BirthdayPickerView(date: $birthday)
-                                .padding()
-                            GenderPickerView(gender: $gender)
-                                .padding()
-                        }
-                        Spacer()
-                        VStack{
-                            SaveChangesView(displayName: $displayName, birthday: $birthday, gender: $gender)
-                            ResetPasswordTriggerView()
+                            VStack{
+                                DisplayNameView(displayName: $displayName)
+                                BirthdayPickerView(date: $birthday)
+                                    .padding(10)
+                                GenderPickerView(gender: $gender)
+                            }
+                            .padding(.top, 10)
+                            Spacer()
+                            VStack{
+                                SaveChangesView(width: width, showSettings: $showSettings, displayName: $displayName, birthday: $birthday, gender: $gender)
+                                    .padding(.bottom, 10)
+                                if userSession.provider == .password {
+                                    ResetPasswordTriggerView(width: width)
+                                }
+                            }
                         }
                     }
+                    .padding(.top, imgSize * 0.5)
                     .padding()
                 },
                 toolbarItemsContent: MyToolBarContent()
@@ -90,7 +98,7 @@ struct AccountSettingView_Previews: PreviewProvider {
 
 func getAccountSettingView() -> some View {
     let userSession = UserSessionModel()
-    let accountSettingView = AccountSettingView()
+    let accountSettingView = AccountSettingView(showSettings: .constant(true))
         .environmentObject(userSession)
     userSession.loginDemo(completion: { result in
         
@@ -103,7 +111,7 @@ struct SettingEditableImageView : View {
     
     @State var size: CGFloat
     
-    @Binding var selected_image: UIImage
+    @Binding var selected_image: UIImage?
     
     var body: some View{
         EditableImageView(size: size, selected_image: $selected_image, imageContent: {
@@ -113,7 +121,7 @@ struct SettingEditableImageView : View {
                     placeholder: {
                         ZStack{
                             Circle().fill(Color.white)
-                            LoadingCircle()
+                            ScallingCircles()
                         }
                     },
                     image: {
@@ -170,39 +178,43 @@ struct GenderPickerView : View {
 
 struct SaveChangesView : View {
     @EnvironmentObject var userSession: UserSessionModel
+    var width: CGFloat
+    
+    @Binding var showSettings: Bool
     
     @Binding var displayName: String
     @Binding var birthday: Date
     @Binding var gender: Gender
     
     var body: some View {
-        GeometryReader { geometry in
-            Button(action: {
-                userSession.userModel.saveBasicInfo(displayName: displayName, birthday: birthday, gender: gender)
-            }, label: {
-                Text("Save Changes")
-                    .frame(width: geometry.size.width, height: 50)
-                    .turnIntoButtonStyle(.green)
+        Button(action: {
+            userSession.userModel.saveBasicInfo(displayName: displayName, birthday: birthday, gender: gender, completion: { result in
+                if result.status == true {
+                    showSettings = false
+                }
             })
-        }
+        }, label: {
+            Text("Save Changes")
+                .frame(width: width, height: 50)
+                .turnIntoButtonStyle(.green)
+        })
     }
 }
 
 struct ResetPasswordTriggerView : View {
     @EnvironmentObject var userSession: UserSessionModel
+    var width: CGFloat
     
     @State private var isPresentingConfirm: Bool = false
     
     var body: some View {
-        GeometryReader { geometry in
-            Button(action: {
-                isPresentingConfirm = true
-            }, label: {
-                Text("Reset Password")
-                    .frame(width: geometry.size.width, height: 50)
-                    .turnIntoButtonStyle(.red)
-            })
-        }
+        Button(action: {
+            isPresentingConfirm = true
+        }, label: {
+            Text("Reset Password")
+                .frame(width: width, height: 50)
+                .turnIntoButtonStyle(.red)
+        })
         .alert(isPresented: $isPresentingConfirm) {
             Alert(
                 title: Text("Do you really want to reset the password?"),

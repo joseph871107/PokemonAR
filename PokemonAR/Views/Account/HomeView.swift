@@ -10,7 +10,9 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var userSession: UserSessionModel
-    @State var showSettings = false
+    
+    @State var showSheet = false
+    @State var showWebview = false
     
     @State var frame = CGRect()
     
@@ -18,54 +20,61 @@ struct HomeView: View {
         GeometryReader { geometry in
             let imgSize = CGFloat(geometry.size.width * 0.5)
             
-            ThemeAccountView(
-                imgSize: imgSize,
-                imageHolder: {
-                    if let _ = userSession.user?.photoURL {
-                        AsyncImage(
-                            url: $userSession.photoURL,
-                            placeholder: {
-                                ZStack{
-                                    Circle().fill(Color.white)
-                                    LoadingCircle()
+            ZStack{
+                ThemeAccountView(
+                    imgSize: imgSize,
+                    imageHolder: {
+                        if let _ = userSession.user?.photoURL {
+                            AsyncImage(
+                                url: $userSession.photoURL,
+                                placeholder: {
+                                    ZStack{
+                                        Circle().fill(Color.white)
+                                        ScallingCircles()
+                                    }
+                                },
+                                image: {
+                                    Image(uiImage: $0)
+                                        .resizable()
                                 }
-                            },
-                            image: {
-                                Image(uiImage: $0)
-                                    .resizable()
-                            }
-                        )
-                            .scaledToFit()
-                            .aspectRatio(contentMode: .fit)
-                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
-                    } else {
-                        Image(uiImage: UIImage.demo_pikachu)
-                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
-                    }
-                },
-                content: {
-                    VStack {
+                            )
+                                .scaledToFit()
+                                .aspectRatio(contentMode: .fit)
+                                .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                        } else {
+                            Image(uiImage: UIImage.demo_pikachu)
+                                .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                        }
+                    },
+                    content: {
                         VStack {
-                            Text(userSession.userName)
-                                .font(.largeTitle)
-                            Divider()
-                            LevelView()
-                            Divider()
+                            VStack {
+                                Text(userSession.userName)
+                                    .font(.largeTitle)
+                                Divider()
+                                LevelView()
+                                Divider()
+                            }
+                            .padding(.horizontal)
+                            Spacer()
+                            VStack{
+                                Divider()
+                                DualTriggerView()
+                                NewsTriggerView(showSheet: $showSheet, showWebview: $showWebview)
+                            }
                         }
-                        .padding(.horizontal)
-                        Spacer()
-                        VStack{
-                            Divider()
-                            DualTriggerView()
-                            NewsTriggerView()
-                        }
-                    }
-                },
-                toolbarItemsContent: MyToolBarContent()
-            )
+                        .padding(.top, imgSize * 0.5)
+                    },
+                    toolbarItemsContent: MyToolBarContent()
+                )
+            }
         }
-        .sheet(isPresented: $showSettings, content: {
-            AccountSettingView()
+        .sheet(isPresented: $showSheet, content: {
+            if showWebview {
+                WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
+            } else {
+                AccountSettingView(showSettings: $showSheet)
+            }
         })
     }
     
@@ -76,7 +85,6 @@ struct HomeView: View {
                 Text("Home")
                     .font(.largeTitle)
                     .foregroundColor(.white)
-                    .padding(.top, 50)
             }
         })
         ToolbarItem(placement: .navigationBarTrailing, content: {
@@ -89,9 +97,11 @@ struct HomeView: View {
         })
         ToolbarItem(placement: .navigationBarLeading, content: {
             Button(action: {
-                showSettings = true
+                showSheet = true
+                showWebview = false
             }, label: {
-                SettingTriggerView()
+                Text("Settings")
+                    .foregroundColor(.white)
             })
         })
     }
@@ -114,28 +124,22 @@ func getHomeView() -> some View {
 }
 
 struct LevelView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @State var animatedValue = CGFloat(0)
     
     var body: some View {
         VStack{
-            Text("LV: 10")
+            Text("LV: \(userSession.userModel.data.level)")
                 .font(.title)
             ExperienceView(value: $animatedValue)
                 .frame(height: 10)
-                .padding()
                 .onAppear(perform: {
                     withAnimation(.spring(), {
-                        animatedValue = CGFloat(0.5)
+                        animatedValue = userSession.userModel.data.remainExperiencePercentage
                     })
                 })
         }
-    }
-}
-
-struct SettingTriggerView : View {
-    var body: some View {
-        Text("Settings")
-            .foregroundColor(.white)
     }
 }
 
@@ -159,9 +163,13 @@ struct DualTriggerView : View {
 }
 
 struct NewsTriggerView : View {
+    @Binding var showSheet: Bool
+    @Binding var showWebview: Bool
+    
     var body: some View {
         Button(action: {
-            
+            showWebview = true
+            showSheet = true
         }, label: {
             Text("What's New?")
                 .font(.headline)

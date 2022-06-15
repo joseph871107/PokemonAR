@@ -92,4 +92,15 @@ extension UIImage {
         
         return croppedImage.resizeImage(targetSize: targetSize)
     }
+    
+    var isNull: Bool {
+        let image = self
+        let size = CGSize(width: 0, height: 0)
+        if (image.size.width == size.width)
+        {
+            return true
+        } else {
+            return false
+        }
+    }
 }

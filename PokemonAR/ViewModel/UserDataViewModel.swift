@@ -38,7 +38,10 @@ class UserDataViewModel: ObservableObject {
     func saveBasicInfo(
         displayName: String,
         birthday: Date,
-        gender: Gender
+        gender: Gender,
+        completion: @escaping (CompletionResult) -> Void = { result in
+        
+        }
     ) {
         userSession!.userModel.data.birthday = birthday
         userSession!.userModel.data.gender = gender
@@ -49,6 +52,9 @@ class UserDataViewModel: ObservableObject {
             
             if result.status == true {
                 self.userSession!.updateUser()
+                completion(CompletionResult(status: true))
+            } else {
+                completion(result)
             }
         })
     }
@@ -61,8 +67,12 @@ class UserDataViewModel: ObservableObject {
             print("[UserDataViewModel] - Stop listening")
         } else {
             store.collection(dbName).document(self.userID).getDocument(completion: { snapshotRef, error in
-                if let data = try! snapshotRef?.data(as: UserDataModel.self) {
-                    self.data = data
+                if let result = snapshotRef?.exists {
+                    if result == true {
+                        if let data = try! snapshotRef?.data(as: UserDataModel.self) {
+                            self.data = data
+                        }
+                    }
                 }
             })
             

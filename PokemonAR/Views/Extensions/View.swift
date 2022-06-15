@@ -7,7 +7,9 @@
 //
 
 import Foundation
+
 import SwiftUI
+import Combine
 
 class PopupViewController : UIViewController {
 }
@@ -22,6 +24,16 @@ struct ViewAcceptPopupViewController : UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: PopupViewController, context: Context) {
         
+    }
+}
+
+struct KeyboardAdaptive: ViewModifier {
+    @State private var keyboardHeight: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.bottom, keyboardHeight)
+            .onReceive(Publishers.keyboardHeight) { self.keyboardHeight = $0 }
     }
 }
 
@@ -49,5 +61,9 @@ extension View {
         self.background(backgroundColor)
             .foregroundColor(foregroundColor)
             .clipShape(Capsule())
+    }
+    
+    func keyboardAdaptive() -> some View {
+        ModifiedContent(content: self, modifier: KeyboardAdaptive())
     }
 }

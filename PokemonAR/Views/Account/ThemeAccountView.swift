@@ -28,29 +28,33 @@ struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsCon
     
     var body: some View {
         GeometryReader { geometry in
+            let offsetY = imgSize * 0.2
             NavigationView{
                 ZStack {
                     VStack{
                         Color.pokemonRed
                             .ignoresSafeArea()
-                            .frame(width: geometry.size.width, height: imgSize / 2, alignment: .leading)
-                        Spacer()
-                    }
-                    VStack{
-                        HStack(
-                            alignment: .center,
-                            content: imageHolder
-                        )
+                            .frame(width: geometry.size.width, height: imgSize / 2 - offsetY, alignment: .leading)
                         VStack(content: content)
                     }
-                    .frame(width: geometry.size.width, alignment: .top)
-                    .toolbar {
-                        toolbarItemsContent
+                    GeometryReader { geo in
+                        VStack{
+                            HStack(alignment: .center) {
+                                imageHolder()
+                                    .padding(.top, -offsetY)
+                            }
+                            Spacer()
+                        }
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .toolbar {
+                            toolbarItemsContent
+                        }
                     }
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

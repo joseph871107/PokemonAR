@@ -15,6 +15,10 @@ struct LoginView: View {
     @State var username: String = ""
     @State var password: String = ""
     
+    @State var showSignup = false
+    
+    @State private var keyboardHeight: CGFloat = 0
+    
     var body: some View {
         GeometryReader { geometry in
             let imgSize = geometry.size.width * 0.5
@@ -25,46 +29,51 @@ struct LoginView: View {
                 },
                 content: {
                     GeometryReader { geo in
+                        let width = geo.size.width
+                        
                         VStack {
                             InputCredential(username: $username, password: $password)
                             VStack{
-                                LoginButton(username: $username, password: $password)
-                                    .zIndex(1)
+                                LoginButton(width: width, username: $username, password: $password)
                                 ZStack{
                                     ForgotPasswordView()
+#if DEBUG
                                     DemoLoginView()
-                                        .frame(width: geometry.size.width, alignment: .trailing)
-                                        .padding(.trailing, 20)
+                                        .frame(width: width, alignment: .trailing)
+                                        .zIndex(1)
+#endif
                                 }
                                 .padding(.bottom, -20)
                             }
-                            LabelledDivider(label: "or", horizontalPadding: geometry.size.width * 0.5 * 0.2)
+                            LabelledDivider(label: "or", horizontalPadding: width * 0.5 * 0.2)
                                 .padding(.vertical, -20)
                             VStack{
                                 FBLoginView(
                                     buttonContent: {
-                                        GeometryReader { geometry in
-                                            Text("Login with Facebook")
-                                                .font(.subheadline)
-                                                .frame(width: geometry.size.width, height: 60)
-                                                .turnIntoButtonStyle(.facebookBlue)
-                                        }
+                                        Text("Login with Facebook")
+                                            .font(.subheadline)
+                                            .frame(width: width, height: 60)
+                                            .turnIntoButtonStyle(.facebookBlue)
                                     },
                                     onSuccess: { user in
                                         userSession.updateUser()
                                     }
                                 )
-                                SignupTriggerView()
+                                SignupTriggerView(showSignup: $showSignup)
                             }
                         }
-                        .padding()
-                        .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
                     }
-                    .environmentObject(userSession)
+                    .padding(.top, imgSize * 0.5)
+                    .padding()
+                    .keyboardAdaptive()
                 },
                 toolbarItemsContent: MyToolBarContent()
             )
         }
+        .sheet(isPresented: $showSignup, content: {
+            SignupView()
+        })
+        .environmentObject(userSession)
     }
     
     struct MyToolBarContent: ToolbarContent {
@@ -89,8 +98,6 @@ struct WelcomeText : View {
             .font(.largeTitle)
             .fontWeight(.semibold)
             .foregroundColor(.white)
-            .padding(.top, 50)
-            .zIndex(1)
     }
 }
 
@@ -113,6 +120,7 @@ struct InputCredential : View {
                 .autocapitalization(.none)
                 .turnIntoTextFieldStyle()
                 .padding(.bottom, 20)
+                .keyboardType(.emailAddress)
             SecureInputView("Password", text: $password)
         }
         .padding(.bottom, 20)
@@ -153,19 +161,21 @@ struct SecureInputView: View {
 }
 
 struct LoginButtonContent : View {
+    var width: CGFloat
+    
     @Binding var disable: Bool
     
     var body: some View {
-        GeometryReader { geometry in
-            Text("Login")
-                .font(.title)
-                .frame(width: geometry.size.width, height: 60)
-                .turnIntoButtonStyle(disable == false ? .pokemonRed : .gray)
-        }
+        Text("Login")
+            .font(.headline)
+            .frame(width: width, height: 60)
+            .turnIntoButtonStyle(disable == false ? .pokemonRed : .gray)
     }
 }
 
 struct LoginButton : View {
+    var width: CGFloat
+    
     @EnvironmentObject var userSession: UserSessionModel
     
     @Binding var username: String
@@ -182,6 +192,7 @@ struct LoginButton : View {
         })
         
         return ButtonBehaviorContent(
+            width: width,
             action: {
                 self.login(completion: { result in
                     self.result = "\(String(result.status)) : \(result.message) \(userSession.user?.email ?? "") \(userSession.user?.uid ?? "")"
@@ -191,7 +202,7 @@ struct LoginButton : View {
         )
         .alert(isPresented: $showAlert) {
             Alert(
-                title: Text("result"),
+                title: Text("Login Result"),
                 message: Text("\(self.result)"),
                 dismissButton: .default(Text("Okay"), action: {
 
@@ -214,12 +225,14 @@ struct LoginButton : View {
     }
     
     struct ButtonBehaviorContent : View {
+        var width: CGFloat
+        
         @State var action: () -> Void
         @Binding var disable: Bool
         
         var body: some View {
             Button(action: { action() }) {
-                LoginButtonContent(disable: $disable)
+                LoginButtonContent(width: width, disable: $disable)
             }
             .disabled(disable)
         }
@@ -267,16 +280,19 @@ struct ForgotPasswordView: View {
 }
 
 struct SignupTriggerView: View {
+    @Binding var showSignup: Bool
+    
     var body: some View {
         VStack {
             Text("Don't have an account yet?")
-            NavigationLink(destination: SignupView(), label: {
+            Button(action: {
+                showSignup = true
+            }, label: {
                 Text("Be a Pokémon master NOW!")
                     .foregroundColor(.pokemonRed)
                     .fontWeight(.heavy)
             })
         }
-        .padding()
     }
 }
 

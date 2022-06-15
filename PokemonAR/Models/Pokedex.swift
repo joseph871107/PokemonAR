@@ -100,16 +100,20 @@ struct Pokemon: Codable, Identifiable, Equatable {
     var experience = 0
     var displayName: String = ""
     
+    var unitsPerLevel: Int {
+        return 100
+    }
+    
     var level: Int {
-        return (self.experience / 100) + 1
+        return (self.experience / unitsPerLevel) + 1
     }
     
     var remainExperience: Int {
-        return experience - (level - 1) * 100
+        return experience - (level - 1) * unitsPerLevel
     }
     
     var remainExperiencePercentage: CGFloat {
-        return CGFloat(Double(remainExperience) / 100.0)
+        return CGFloat(Double(remainExperience) / Double(unitsPerLevel))
     }
     
     var name: String {

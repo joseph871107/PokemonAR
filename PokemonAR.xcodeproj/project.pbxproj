@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1E80B32721521BCC7B34949C /* Pods_PokemonAR.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7188819D4ABCA5FEB2A57A /* Pods_PokemonAR.framework */; };
+		7015DB7C285A669E003E87CC /* Publisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015DB7B285A669E003E87CC /* Publisher.swift */; };
+		7015DB7E285A7814003E87CC /* ScallingCircles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015DB7D285A7814003E87CC /* ScallingCircles.swift */; };
 		7018BE15285655D700311E26 /* detect.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 7018BE13285655D500311E26 /* detect.tflite */; };
 		7018BE16285655D700311E26 /* labelmap.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7018BE14285655D700311E26 /* labelmap.txt */; };
 		7018BE1C285655F600311E26 /* OverlayViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE18285655F200311E26 /* OverlayViewRepresentable.swift */; };
@@ -66,6 +68,7 @@
 		708C9A372859689000FAD13B /* EditableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A362859688F00FAD13B /* EditableImageView.swift */; };
 		708C9A392859887400FAD13B /* ThemeAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A382859887400FAD13B /* ThemeAccountView.swift */; };
 		708C9A3B2859903A00FAD13B /* UserDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A3A2859903A00FAD13B /* UserDataModel.swift */; };
+		708C9A5B2859F18100FAD13B /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A5A2859F18000FAD13B /* WebView.swift */; };
 		AA9AC59F212D39FC000B4E9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */; };
 		AA9AC5A4212D39FC000B4E9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A2212D39FC000B4E9D /* Main.storyboard */; };
 		AA9AC5A6212D39FD000B4E9D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A5212D39FD000B4E9D /* Assets.xcassets */; };
@@ -76,6 +79,8 @@
 		2B7188819D4ABCA5FEB2A57A /* Pods_PokemonAR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PokemonAR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5461A9602A0A3561DB9D597D /* Pods-PokemonAR.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PokemonAR.debug.xcconfig"; path = "Target Support Files/Pods-PokemonAR/Pods-PokemonAR.debug.xcconfig"; sourceTree = "<group>"; };
 		661EBCB319BEACFB38192437 /* Pods-PokemonAR.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PokemonAR.release.xcconfig"; path = "Target Support Files/Pods-PokemonAR/Pods-PokemonAR.release.xcconfig"; sourceTree = "<group>"; };
+		7015DB7B285A669E003E87CC /* Publisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publisher.swift; sourceTree = "<group>"; };
+		7015DB7D285A7814003E87CC /* ScallingCircles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScallingCircles.swift; sourceTree = "<group>"; };
 		7018BE13285655D500311E26 /* detect.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = detect.tflite; sourceTree = "<group>"; };
 		7018BE14285655D700311E26 /* labelmap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		7018BE18285655F200311E26 /* OverlayViewRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlayViewRepresentable.swift; sourceTree = "<group>"; };
@@ -126,6 +131,7 @@
 		708C9A362859688F00FAD13B /* EditableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableImageView.swift; sourceTree = "<group>"; };
 		708C9A382859887400FAD13B /* ThemeAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeAccountView.swift; sourceTree = "<group>"; };
 		708C9A3A2859903A00FAD13B /* UserDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataModel.swift; sourceTree = "<group>"; };
+		708C9A5A2859F18000FAD13B /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		AA9AC59B212D39FC000B4E9D /* PokemonAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokemonAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA9AC5A3212D39FC000B4E9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -331,6 +337,9 @@
 				708C9A2C2859463A00FAD13B /* TextAlert.swift */,
 				708C9A302859529C00FAD13B /* LabelledDivider.swift */,
 				708C9A362859688F00FAD13B /* EditableImageView.swift */,
+				708C9A5A2859F18000FAD13B /* WebView.swift */,
+				7015DB7B285A669E003E87CC /* Publisher.swift */,
+				7015DB7D285A7814003E87CC /* ScallingCircles.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -533,6 +542,7 @@
 				708C9A112858AD9C00FAD13B /* URL.swift in Sources */,
 				708C9A392859887400FAD13B /* ThemeAccountView.swift in Sources */,
 				708C9A312859529C00FAD13B /* LabelledDivider.swift in Sources */,
+				7015DB7E285A7814003E87CC /* ScallingCircles.swift in Sources */,
 				7018BE2E2856562200311E26 /* CameraFeedManager.swift in Sources */,
 				708C9A372859689000FAD13B /* EditableImageView.swift in Sources */,
 				7018BE4E2856585F00311E26 /* Pokedex.swift in Sources */,
@@ -554,6 +564,7 @@
 				708C9A3B2859903A00FAD13B /* UserDataModel.swift in Sources */,
 				7018BEC4285781D200311E26 /* PokeBagViewModel.swift in Sources */,
 				708C9A232858CD6900FAD13B /* SpinnerView.swift in Sources */,
+				708C9A5B2859F18100FAD13B /* WebView.swift in Sources */,
 				708C9A132858ADF000FAD13B /* ZStack.swift in Sources */,
 				708C9A1F2858C30C00FAD13B /* View.swift in Sources */,
 				7018BE3A2856569200311E26 /* CVPixelBufferExtension.swift in Sources */,
@@ -568,6 +579,7 @@
 				7018BE1E285655F600311E26 /* CurvedView.swift in Sources */,
 				7018BE282856561100311E26 /* ViewControllerPreview.swift in Sources */,
 				7018BE3C285656D200311E26 /* ModelDataHandler.swift in Sources */,
+				7015DB7C285A669E003E87CC /* Publisher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

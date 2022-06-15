@@ -12,12 +12,15 @@ import SwiftUI
 struct EditableImageView<ImageContent: View> : View {
     @State var size: CGFloat
     
-    @Binding var selected_image: UIImage
+    @Binding var selected_image: UIImage?
+    @State var showSelection = false
     @State var showSheet = false
+    
+    @State var sourceType: UIImagePickerController.SourceType = .camera
     
     @State var imageContent: () -> ImageContent
     
-    init(size: CGFloat, selected_image: Binding<UIImage>, @ViewBuilder imageContent: @escaping () -> ImageContent) {
+    init(size: CGFloat, selected_image: Binding<UIImage?>, @ViewBuilder imageContent: @escaping () -> ImageContent) {
         self.size = size
         self._selected_image = selected_image
         self.imageContent = imageContent
@@ -50,12 +53,32 @@ struct EditableImageView<ImageContent: View> : View {
             self.clicked()
         })
         .padding()
+        .actionSheet(isPresented: $showSelection) { () -> ActionSheet in
+            ActionSheet(title: Text("Select Photo"), buttons: [
+                ActionSheet.Button.default(Text("Camera"), action: {
+                    sourceType = .camera
+                    showSheet = true
+                    showSelection = false
+                }),
+                ActionSheet.Button.default(Text("Photo Library"), action: {
+                    sourceType = .photoLibrary
+                    showSheet = true
+                    showSelection = false
+                }),
+                ActionSheet.Button.default(Text("Saved Photo Album"), action: {
+                    sourceType = .savedPhotosAlbum
+                    showSheet = true
+                    showSelection = false
+                }),
+                ActionSheet.Button.cancel(Text("Cancel"))
+            ])
+        }
         .sheet(isPresented: $showSheet) {
-            ImagePicker(selectedImage: $selected_image)
+            ImagePicker(selectedImage: $selected_image, sourceType: sourceType)
         }
     }
     
     func clicked(callback: () -> Void = {}) {
-        showSheet = true
+        showSelection = true
     }
 }

@@ -63,7 +63,13 @@ class UserSessionModel: ObservableObject {
                  return
              }
             
-            self.replaceUserPhoto(user: user, image: image)
+            self.replaceUserPhoto(user: user, image: image, completion: { result in
+                if result.status == true {
+                    self.saveUserBasicInfo(displayName: username, photoURL: URL.demo_pikachu, completion: completion)
+                } else {
+                    completion(result)
+                }
+            })
         }
     }
     
@@ -144,28 +150,32 @@ class UserSessionModel: ObservableObject {
     func replaceUserPhoto(user: User, image: UIImage, completion: @escaping (CompletionResult) -> Void = { result in
         
     }) {
-        let targetSize = CGSize(width: 256, height: 256)
-        var image = image
-        if let newImage = image.centerCropImage(targetSize: targetSize) {
-            image = newImage
-        }
-        
-        if let photoURL = user.photoURL {
-            self.replacePhoto(image: image, url: photoURL, completion: { result in
-                if result.status == true {
-                    self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
-                } else {
-                    completion(result)
-                }
-            })
-        } else {
-            self.uploadPhoto(image: image, completion: { result in
-                if result.status == true {
-                    self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
-                } else {
-                    completion(result)
-                }
-            })
+        if image == .demo_pikachu {
+            completion(CompletionResult(status: true))
+       } else {
+           let targetSize = CGSize(width: 256, height: 256)
+           var image = image
+           if let newImage = image.centerCropImage(targetSize: targetSize) {
+               image = newImage
+           }
+           
+           if let photoURL = user.photoURL {
+               self.replacePhoto(image: image, url: photoURL, completion: { result in
+                   if result.status == true {
+                       self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
+                   } else {
+                       completion(result)
+                   }
+               })
+           } else {
+               self.uploadPhoto(image: image, completion: { result in
+                   if result.status == true {
+                       self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
+                   } else {
+                       completion(result)
+                   }
+               })
+           }
         }
     }
     
