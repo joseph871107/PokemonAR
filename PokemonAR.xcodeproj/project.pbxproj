@@ -251,7 +251,6 @@
 			isa = PBXGroup;
 			children = (
 				7018BE4C2856585E00311E26 /* Pokedex.swift */,
-				7018BE4D2856585F00311E26 /* UserSessionModel.swift */,
 				7018BE632856648600311E26 /* UserModel.swift */,
 			);
 			path = Models;
@@ -287,6 +286,7 @@
 			isa = PBXGroup;
 			children = (
 				7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */,
+				7018BE4D2856585F00311E26 /* UserSessionModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
