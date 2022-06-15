@@ -18,4 +18,10 @@ extension Image {
             .clipped()
             .cornerRadius(mn)
     }
+    
+    func circleWithBorderNShadow(width: CGFloat, height: CGFloat, borderWidth: CGFloat = 5) -> some View {
+        return self.circle(width: width, height: height)
+            .overlay(Circle().stroke(.white, lineWidth: borderWidth))
+            .shadow(color: Color.black.opacity(0.9), radius: 20)
+    }
 }

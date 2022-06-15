@@ -24,3 +24,30 @@ struct ViewAcceptPopupViewController : UIViewControllerRepresentable {
         
     }
 }
+
+extension View {
+    func circle(width: CGFloat, height: CGFloat) -> some View {
+        let mn = min(width, height)
+        return self.frame(width: width, height: height)
+            .clipped()
+            .cornerRadius(mn)
+    }
+    
+    func circleWithBorderNShadow(width: CGFloat, height: CGFloat, borderWidth: CGFloat = 5) -> some View {
+        return self.circle(width: width, height: height)
+            .overlay(Circle().stroke(.white, lineWidth: borderWidth))
+            .shadow(color: Color.black.opacity(0.9), radius: 20)
+    }
+    
+    func turnIntoTextFieldStyle() -> some View {
+        self.padding()
+            .background(Color.lightGray)
+            .cornerRadius(5.0)
+    }
+    
+    func turnIntoButtonStyle(_ backgroundColor: Color = .blue, _ foregroundColor: Color = .white) -> some View {
+        self.background(backgroundColor)
+            .foregroundColor(foregroundColor)
+            .clipShape(Capsule())
+    }
+}

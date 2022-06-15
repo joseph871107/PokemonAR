@@ -58,6 +58,13 @@
 		708C9A1F2858C30C00FAD13B /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A1E2858C30C00FAD13B /* View.swift */; };
 		708C9A232858CD6900FAD13B /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A222858CD6900FAD13B /* SpinnerView.swift */; };
 		708C9A252858D56300FAD13B /* AsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A242858D56300FAD13B /* AsyncImage.swift */; };
+		708C9A2D2859463A00FAD13B /* TextAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A2C2859463A00FAD13B /* TextAlert.swift */; };
+		708C9A2F28594F4800FAD13B /* SignupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A2E28594F4800FAD13B /* SignupView.swift */; };
+		708C9A312859529C00FAD13B /* LabelledDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A302859529C00FAD13B /* LabelledDivider.swift */; };
+		708C9A332859602500FAD13B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A322859602500FAD13B /* FirebaseStorage */; };
+		708C9A35285960E700FAD13B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A34285960E700FAD13B /* FirebaseStorageCombine-Community */; };
+		708C9A372859689000FAD13B /* EditableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A362859688F00FAD13B /* EditableImageView.swift */; };
+		708C9A392859887400FAD13B /* ThemeAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A382859887400FAD13B /* ThemeAccountView.swift */; };
 		AA9AC59F212D39FC000B4E9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */; };
 		AA9AC5A4212D39FC000B4E9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A2212D39FC000B4E9D /* Main.storyboard */; };
 		AA9AC5A6212D39FD000B4E9D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA9AC5A5212D39FD000B4E9D /* Assets.xcassets */; };
@@ -112,6 +119,11 @@
 		708C9A1E2858C30C00FAD13B /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
 		708C9A222858CD6900FAD13B /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
 		708C9A242858D56300FAD13B /* AsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImage.swift; sourceTree = "<group>"; };
+		708C9A2C2859463A00FAD13B /* TextAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlert.swift; sourceTree = "<group>"; };
+		708C9A2E28594F4800FAD13B /* SignupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupView.swift; sourceTree = "<group>"; };
+		708C9A302859529C00FAD13B /* LabelledDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelledDivider.swift; sourceTree = "<group>"; };
+		708C9A362859688F00FAD13B /* EditableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableImageView.swift; sourceTree = "<group>"; };
+		708C9A382859887400FAD13B /* ThemeAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeAccountView.swift; sourceTree = "<group>"; };
 		AA9AC59B212D39FC000B4E9D /* PokemonAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokemonAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA9AC5A3212D39FC000B4E9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -130,7 +142,9 @@
 				7018BE69285665B500311E26 /* FirebaseAuth in Frameworks */,
 				7018BE67285665B500311E26 /* FirebaseAnalytics in Frameworks */,
 				1E80B32721521BCC7B34949C /* Pods_PokemonAR.framework in Frameworks */,
+				708C9A332859602500FAD13B /* FirebaseStorage in Frameworks */,
 				708C9A092858A94C00FAD13B /* FacebookLogin in Frameworks */,
+				708C9A35285960E700FAD13B /* FirebaseStorageCombine-Community in Frameworks */,
 				7018BE6B285665B500311E26 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,19 +241,10 @@
 				7018BEC52857A04A00311E26 /* Account */,
 				7018BEBC28576B0800311E26 /* Utils */,
 				7018BE5728565C2B00311E26 /* Pokemon */,
-				7018BE422856576100311E26 /* LoginView.swift */,
 				7018BE3E2856575C00311E26 /* MainAuthView.swift */,
 				7018BE61285660C300311E26 /* MainTabView.swift */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		7018BE482856577000311E26 /* AccountSetting */ = {
-			isa = PBXGroup;
-			children = (
-				7018BE492856577C00311E26 /* ImagePicker.swift */,
-			);
-			path = AccountSetting;
 			sourceTree = "<group>";
 		};
 		7018BE4B2856584C00311E26 /* Models */ = {
@@ -290,9 +295,11 @@
 			isa = PBXGroup;
 			children = (
 				708C9A0A2858AA9100FAD13B /* Facebook */,
-				7018BE482856577000311E26 /* AccountSetting */,
 				7018BE3F2856575E00311E26 /* AccountSettingView.swift */,
 				7018BE412856576000311E26 /* HomeView.swift */,
+				708C9A382859887400FAD13B /* ThemeAccountView.swift */,
+				7018BE422856576100311E26 /* LoginView.swift */,
+				708C9A2E28594F4800FAD13B /* SignupView.swift */,
 			);
 			path = Account;
 			sourceTree = "<group>";
@@ -308,6 +315,7 @@
 		708C9A0D2858AD3100FAD13B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				7018BE492856577C00311E26 /* ImagePicker.swift */,
 				708C9A1C2858BD0300FAD13B /* UIViewController.swift */,
 				708C9A102858AD9C00FAD13B /* URL.swift */,
 				708C9A122858ADF000FAD13B /* ZStack.swift */,
@@ -317,6 +325,9 @@
 				708C9A1E2858C30C00FAD13B /* View.swift */,
 				708C9A222858CD6900FAD13B /* SpinnerView.swift */,
 				708C9A242858D56300FAD13B /* AsyncImage.swift */,
+				708C9A2C2859463A00FAD13B /* TextAlert.swift */,
+				708C9A302859529C00FAD13B /* LabelledDivider.swift */,
+				708C9A362859688F00FAD13B /* EditableImageView.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -398,6 +409,8 @@
 				7018BE6C28566B5200311E26 /* FirebaseFirestoreSwift */,
 				708C9A062858A94C00FAD13B /* FacebookCore */,
 				708C9A082858A94C00FAD13B /* FacebookLogin */,
+				708C9A322859602500FAD13B /* FirebaseStorage */,
+				708C9A34285960E700FAD13B /* FirebaseStorageCombine-Community */,
 			);
 			productName = PokemonAR;
 			productReference = AA9AC59B212D39FC000B4E9D /* PokemonAR.app */;
@@ -515,15 +528,20 @@
 				7018BE1D285655F600311E26 /* OverlayView.swift in Sources */,
 				7018BE2F2856562200311E26 /* CameraFeedManagerPreview.swift in Sources */,
 				708C9A112858AD9C00FAD13B /* URL.swift in Sources */,
+				708C9A392859887400FAD13B /* ThemeAccountView.swift in Sources */,
+				708C9A312859529C00FAD13B /* LabelledDivider.swift in Sources */,
 				7018BE2E2856562200311E26 /* CameraFeedManager.swift in Sources */,
+				708C9A372859689000FAD13B /* EditableImageView.swift in Sources */,
 				7018BE4E2856585F00311E26 /* Pokedex.swift in Sources */,
 				7018BE472856576100311E26 /* LoginView.swift in Sources */,
 				7018BE292856561100311E26 /* ViewControllerRepresentable.swift in Sources */,
 				7018BE442856576100311E26 /* AccountSettingView.swift in Sources */,
 				7018BE1C285655F600311E26 /* OverlayViewRepresentable.swift in Sources */,
+				708C9A2D2859463A00FAD13B /* TextAlert.swift in Sources */,
 				7018BE2D2856562200311E26 /* PreviewView.swift in Sources */,
 				7018BE5E28565C4C00311E26 /* PokedexView.swift in Sources */,
 				708C9A192858AE4100FAD13B /* Color.swift in Sources */,
+				708C9A2F28594F4800FAD13B /* SignupView.swift in Sources */,
 				7018BE62285660C300311E26 /* MainTabView.swift in Sources */,
 				7018BE4A2856577C00311E26 /* ImagePicker.swift in Sources */,
 				7018BE642856648600311E26 /* UserModel.swift in Sources */,
@@ -818,6 +836,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 708C9A052858A94C00FAD13B /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
 			productName = FacebookLogin;
+		};
+		708C9A322859602500FAD13B /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7018BE65285665B500311E26 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		708C9A34285960E700FAD13B /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7018BE65285665B500311E26 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseStorageCombine-Community";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

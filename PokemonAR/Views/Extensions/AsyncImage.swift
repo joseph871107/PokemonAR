@@ -16,19 +16,27 @@ struct AsyncImage<Placeholder: View>: View {
     private let placeholder: Placeholder
     private let image: (UIImage) -> Image
     
+    @Binding var url: URL
+    
     init(
-        url: URL,
+        url: Binding<URL>,
         @ViewBuilder placeholder: () -> Placeholder,
         @ViewBuilder image: @escaping (UIImage) -> Image = Image.init(uiImage:)
     ) {
         self.placeholder = placeholder()
         self.image = image
-        _loader = StateObject(wrappedValue: ImageLoader(url: url, cache: Environment(\.imageCache).wrappedValue))
+        self._url = url
+        self._loader = StateObject(wrappedValue: ImageLoader(url: url.wrappedValue, cache: Environment(\.imageCache).wrappedValue))
     }
     
     var body: some View {
         content
             .onAppear(perform: loader.load)
+            .onChange(of: url, perform: { newURL in
+                self.loader.cancel()
+                self.loader.url = newURL
+                self.loader.load()
+            })
     }
     
     private var content: some View {
@@ -60,7 +68,7 @@ class ImageLoader: ObservableObject {
     
     private(set) var isLoading = false
     
-    private let url: URL
+    var url: URL
     private var cache: ImageCache?
     private var cancellable: AnyCancellable?
     
@@ -120,5 +128,28 @@ extension EnvironmentValues {
     var imageCache: ImageCache {
         get { self[ImageCacheKey.self] }
         set { self[ImageCacheKey.self] = newValue }
+    }
+}
+
+
+struct LoadingCircle: View {
+    @State private var isLoading = false
+ 
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color(.systemGray5), lineWidth: 14)
+                .frame(width: 100, height: 100)
+ 
+            Circle()
+                .trim(from: 0, to: 0.2)
+                .stroke(Color.green, lineWidth: 7)
+                .frame(width: 100, height: 100)
+                .rotationEffect(Angle(degrees: isLoading ? 360 : 0))
+                .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
+                .onAppear() {
+                    self.isLoading = true
+            }
+        }
     }
 }

@@ -15,40 +15,37 @@ struct HomeView: View {
     @State var frame = CGRect()
     
     var body: some View {
-        NavigationView{
-            GeometryReader { geometry in
-                let imgSize = geometry.size.width * 0.5
-                ZStack {
-                    VStack{
-                        Color.pokemonRed
-                            .ignoresSafeArea()
-                            .frame(width: geometry.size.width, height: imgSize / 2, alignment: .leading)
-                        Spacer()
-                    }
-                    VStack{
-                        VStack(alignment: .center) {
-                            if let photoURL = userSession.user?.photoURL {
-                                AsyncImage(
-                                    url: photoURL,
-                                    placeholder: {
-                                        SpinnerView()
-                                    },
-                                    image: {
-                                        Image(uiImage: $0)
-                                    }
-                                )
-                                    .frame(width: imgSize, height: imgSize)
-                                    .clipped()
-                                    .cornerRadius(imgSize)
-                                    .overlay(Circle().stroke(.white, lineWidth: 5))
-                                    .shadow(color: Color.black.opacity(0.9), radius: 20)
-                            } else {
-                                Image(uiImage: UIImage.demo_pikachu)
-                                    .circle(width: imgSize, height: imgSize)
-                                    .overlay(Circle().stroke(.white, lineWidth: 5))
-                                    .shadow(color: Color.black.opacity(0.9), radius: 20)
+        GeometryReader { geometry in
+            let imgSize = CGFloat(geometry.size.width * 0.5)
+            
+            ThemeAccountView(
+                imgSize: imgSize,
+                imageHolder: {
+                    if let _ = userSession.user?.photoURL {
+                        AsyncImage(
+                            url: $userSession.photoURL,
+                            placeholder: {
+                                ZStack{
+                                    Circle().fill(Color.white)
+                                    LoadingCircle()
+                                }
+                            },
+                            image: {
+                                Image(uiImage: $0)
+                                    .resizable()
                             }
-                            
+                        )
+                            .scaledToFit()
+                            .aspectRatio(contentMode: .fit)
+                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                    } else {
+                        Image(uiImage: UIImage.demo_pikachu)
+                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                    }
+                },
+                content: {
+                    VStack {
+                        VStack {
                             Text(userSession.userName)
                                 .font(.largeTitle)
                             Divider()
@@ -63,36 +60,39 @@ struct HomeView: View {
                             NewsTriggerView()
                         }
                     }
-                    .toolbar {
-                        ToolbarItem(placement: .principal, content: {
-                            HStack {
-                                Text("Home")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.white)
-                            }
-                        })
-                        ToolbarItem(placement: .navigationBarTrailing, content: {
-                            Button(action: {
-                                userSession.logout()
-                            }, label: {
-                                Text("Logout")
-                                    .foregroundColor(.white)
-                            })
-                        })
-                        ToolbarItem(placement: .navigationBarLeading, content: {
-                            Button(action: {
-                                showSettings = true
-                            }, label: {
-                                SettingTriggerView()
-                            })
-                        })
-                    }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                }
-            }
+                },
+                toolbarItemsContent: MyToolBarContent()
+            )
         }
         .sheet(isPresented: $showSettings, content: {
             AccountSettingView()
+        })
+    }
+    
+    @ToolbarContentBuilder
+    func MyToolBarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .principal, content: {
+            HStack{
+                Text("Home")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                    .padding(.top, 50)
+            }
+        })
+        ToolbarItem(placement: .navigationBarTrailing, content: {
+            Button(action: {
+                userSession.logout()
+            }, label: {
+                Text("Logout")
+                    .foregroundColor(.white)
+            })
+        })
+        ToolbarItem(placement: .navigationBarLeading, content: {
+            Button(action: {
+                showSettings = true
+            }, label: {
+                SettingTriggerView()
+            })
         })
     }
 }

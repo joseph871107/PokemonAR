@@ -9,89 +9,121 @@
 import SwiftUI
 
 struct AccountSettingView: View {
-    @State var displayName = "Pikachu123"
+    @EnvironmentObject var userSession: UserSessionModel
+    
+    @State var image = UIImage()
+    @State var displayName = ""
     @State var date = Date()
     @State var gender = "Male"
     
     var body: some View {
-        VStack{
-            VStack{
-                EditableImageView(size: 250)
-                    .padding()
-                DisplayNameView(displayName: $displayName)
-                    .padding()
-                BirthdayPickerView(date: $date)
-                    .padding()
-                GenderPickerView(gender: $gender)
-                    .padding()
-            }
-            Spacer()
-            GeometryReader() { geometry in
+        ThemeAccountView(
+            imgSize: 250,
+            imageHolder: {
+                SettingEditableImageView(size: 250, selected_image: $image)
+                    .onChange(of: image, perform: { newImage in
+                        if newImage != UIImage() && newImage != UIImage.demo_cat {
+                            userSession.replaceUserPhoto(user: userSession.user!, image: newImage, completion: { result in
+                                print(result.status)
+                                print(result.message)
+                                
+                                if result.status == true {
+                                    userSession.updateUser()
+                                }
+                            })
+                        }
+                    })
+            },
+            content: {
                 VStack{
-                    SaveChangesView()
-                        .frame(width: geometry.size.width)
-                    ResetPasswordTriggerView()
-                        .frame(width: geometry.size.width)
+                    VStack{
+                        DisplayNameView(displayName: $displayName)
+                            .padding()
+                        BirthdayPickerView(date: $date)
+                            .padding()
+                        GenderPickerView(gender: $gender)
+                            .padding()
+                    }
+                    Spacer()
+                    VStack{
+                        SaveChangesView()
+                        ResetPasswordTriggerView()
+                    }
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                .padding()
+            },
+            toolbarItemsContent: MyToolBarContent()
+        )
+        .environmentObject(userSession)
+        .onAppear(perform: {
+            if let name = userSession.user?.displayName {
+                displayName = name
+            } else {
+                displayName = ""
             }
-        }
-        .padding()
+        })
+    }
+    
+    @ToolbarContentBuilder
+    func MyToolBarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .principal, content: {
+            Text("Account Settings")
+                .font(.title)
+                .foregroundColor(.white)
+                .padding(.top, 50)
+        })
     }
 }
 
 struct AccountSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        AccountSettingView()
+        getAccountSettingView()
     }
 }
 
-struct EditableImageView : View {
+func getAccountSettingView() -> some View {
+    let userSession = UserSessionModel()
+    let accountSettingView = AccountSettingView()
+        .environmentObject(userSession)
+    userSession.loginDemo(completion: { result in
+        
+    })
+    return accountSettingView
+}
+
+struct SettingEditableImageView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @State var size: CGFloat
     
-    @State private var image = UIImage(named: "demo_cat")!
-    @State private var showSheet = false
-    
-    var width: CGFloat {
-        self.size
-    }
-    var height: CGFloat {
-        self.size
-    }
+    @Binding var selected_image: UIImage
     
     var body: some View{
-        
-        ZStack{
-            ZStack{
-                Image(uiImage: image)
+        EditableImageView(size: size, selected_image: $selected_image, imageContent: {
+            if let _ = userSession.user?.photoURL {
+                AsyncImage(
+                    url: $userSession.photoURL,
+                    placeholder: {
+                        ZStack{
+                            Circle().fill(Color.white)
+                            LoadingCircle()
+                        }
+                    },
+                    image: {
+                        Image(uiImage: $0)
+                            .resizable()
+                    }
+                )
+                    .scaledToFit()
+                    .aspectRatio(contentMode: .fit)
+                    .circleWithBorderNShadow(width: size, height: size)
+            } else {
+                Image(uiImage: UIImage.demo_pikachu)
                     .resizable()
+                    .scaledToFit()
+                    .circleWithBorderNShadow(width: size, height: size)
             }
-            .circle(width: width, height: height)
-            ZStack{
-                VStack{
-                    Spacer()
-                    Text("Edit")
-                        .font(.system(size: size * 0.1))
-                        .frame(width: width, height: height * 0.2)
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                }
-                .frame(width: width, height: height)
-            }
-            .circle(width: width, height: height)
-        }
-        .onTapGesture(perform: {
-            self.clicked()
         })
-        .padding()
-        .sheet(isPresented: $showSheet) {
-            ImagePicker(selectedImage: $image)
-        }
-    }
-    
-    func clicked(callback: () -> Void = {}) {
-        print("A")
-        showSheet = true
     }
 }
 
@@ -100,10 +132,13 @@ struct DisplayNameView : View {
     
     var body: some View {
         TextField("Username", text: $displayName)
+            .turnIntoTextFieldStyle()
     }
 }
 
 struct BirthdayPickerView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @Binding var date: Date
     
     var body: some View {
@@ -112,6 +147,8 @@ struct BirthdayPickerView : View {
 }
 
 struct GenderPickerView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @Binding var gender: String
     
     var body: some View {
@@ -126,21 +163,49 @@ struct GenderPickerView : View {
 
 struct SaveChangesView : View {
     var body: some View {
-        Button("Save Changes", action: {
-            print("Save Changes")
-        })
-            .foregroundColor(.green)
-            .padding()
+        GeometryReader { geometry in
+            Button(action: {
+                print("Save Changes")
+            }, label: {
+                Text("Save Changes")
+                    .frame(width: geometry.size.width, height: 50)
+                    .turnIntoButtonStyle(.green)
+            })
+        }
     }
 }
 
 struct ResetPasswordTriggerView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
+    @State private var isPresentingConfirm: Bool = false
+    
     var body: some View {
-        Button("Reset Password", action: {
-            print("Reset Password")
-        })
-            .foregroundColor(.red)
-            .padding()
+        GeometryReader { geometry in
+            Button(action: {
+                isPresentingConfirm = true
+            }, label: {
+                Text("Reset Password")
+                    .frame(width: geometry.size.width, height: 50)
+                    .turnIntoButtonStyle(.red)
+            })
+        }
+        .alert(isPresented: $isPresentingConfirm) {
+            Alert(
+                title: Text("Do you really want to reset the password?"),
+                message: Text("This will send you an email to reset the password."),
+                primaryButton: .cancel(Text("Cancel"), action: {
+                    isPresentingConfirm = false
+                }),
+                secondaryButton: .destructive(Text("Reset"), action: {
+                    userSession.resetPassword(completion: { result in
+                        if result.status == true {
+                            isPresentingConfirm = false
+                        }
+                    })
+                })
+            )
+        }
     }
 }
 

@@ -14,12 +14,35 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
 
-struct FBLoginView : View {
+struct DefaultFacebookButton: View {
+    var body: some View {
+        Text("Login with Facebook")
+            .fontWeight(.bold)
+            .foregroundColor(.white)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 35)
+            .background(Color.facebookBlue)
+            .clipShape(Capsule())
+    }
+}
+
+struct FBLoginView<ButtonContent: View>: View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     var manager = LoginManager()
     var isMFAEnabled = false
     var popupView = ViewAcceptPopupViewController()
+    var onSuccess: (User) -> Void
+    var buttonContent: () -> ButtonContent
     
-    var onSuccess: (User) -> Void = { user in
+    init(
+        @ViewBuilder buttonContent: @escaping () -> ButtonContent,
+        onSuccess: @escaping (User) -> Void = { user in
+            
+        }
+    ) {
+        self.buttonContent = buttonContent
+        self.onSuccess = onSuccess
     }
     
     var body: some View {
@@ -41,15 +64,7 @@ struct FBLoginView : View {
                         print("[FBLoginView] - failed with result is null")
                     }
                 }
-            }, label: {
-                Text("FB Login")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 35)
-                    .background(Color.blue)
-                    .clipShape(Capsule())
-            })
+            }, label: buttonContent)
         }
     }
     
@@ -147,6 +162,8 @@ struct FBLoginView : View {
                                }
                                 
                                 // Seccessfully change user photo to Facebook
+                                userSession.updateUser()
+                                onSuccess(userSession.user!)
                             })
                         } else {
                             print("No need to update")
@@ -192,6 +209,10 @@ struct FBLoginView : View {
 
 struct Previews_FBLoginView_Previews: PreviewProvider {
     static var previews: some View {
-        FBLoginView()
+        FBLoginView(buttonContent: {
+            Text("FB Login")
+                .frame(width: 100, height: 50)
+                .turnIntoButtonStyle(Color.facebookBlue)
+        })
     }
 }
