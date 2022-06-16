@@ -10,19 +10,19 @@ import SwiftUI
 
 struct MainAuthView: View {
     @StateObject var userSession = UserSessionModel()
+    {
+        didSet {
+            print("[MainAuthView] - userSession changed \(String(describing: userSession))")
+        }
+    }
     
     var body: some View {
-        NavigationView {
-            ZStack{
-                if userSession.isLogged {
-                    MainTabView()
-                        .environmentObject(userSession)
-                } else {
-                    LoginView()
-                        .environmentObject(userSession)
-                }
-            }
-            .transition(.slide)
+        if userSession.isLogged {
+            MainTabView()
+                .environmentObject(userSession)
+        } else {
+            LoginView()
+                .environmentObject(userSession)
         }
     }
 }
@@ -33,9 +33,10 @@ struct MainAuthView_Previews: PreviewProvider {
     }
 }
 
-func getMainAuthView() -> MainAuthView {
-    let mainAuthView = MainAuthView()
-    mainAuthView.userSession.loginDemo(completion: { result in
+func getMainAuthView() -> some View {
+    let userSession = UserSessionModel()
+    let mainAuthView = MainAuthView(userSession: userSession)
+    userSession.loginDemo(completion: { result in
         
     })
     return mainAuthView

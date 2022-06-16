@@ -13,22 +13,22 @@ struct MainTabView: View {
     
     var body: some View {
         TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
             PokedexView()
-                .environmentObject(userSession)
                 .tabItem {
-                    Label("Pokedex", systemImage: "car")
+                    Label("Pokedex", systemImage: "square.grid.3x3.fill")
                 }
-            ViewControllerRepresentable()
-                .environmentObject(userSession)
-                .tabItem {
-                    Label("Catch", systemImage: "photo")
-                }
-            LoggedView()
-                .environmentObject(userSession)
-                .tabItem {
-                    Label("Setting", systemImage: "gear")
-                }
+//            ViewControllerRepresentable()
+//                .environmentObject(userSession)
+//                .tabItem {
+//                    Label("Catch", systemImage: "photo")
+//                }
         }
+        .edgesIgnoringSafeArea(.all)
+        .environmentObject(userSession)
     }
 }
 
@@ -38,38 +38,12 @@ struct MainTabView_Previews: PreviewProvider {
     }
 }
 
-func getMainTabView() -> MainTabView {
+func getMainTabView() -> some View {
+    let userSession = UserSessionModel()
     let mainTabView = MainTabView()
-    mainTabView.userSession.loginDemo(completion: { result in
+        .environmentObject(userSession)
+    userSession.loginDemo(completion: { result in
         
     })
     return mainTabView
-}
-
-
-struct LoggedView : View {
-    @EnvironmentObject var userSession: UserSessionModel
-    
-    var body: some View {
-        VStack{
-            VStack{
-                Text("UID : \(userSession.user?.uid ?? "")")
-                Text("Email : \(userSession.user?.email ?? "")")
-                Text("Display Name : \(userSession.user?.displayName ?? "")")
-            }
-            VStack{
-                NavigationLink(
-                    "Start detect",
-                    destination: ViewControllerRepresentable()
-                )
-                Button("Logout", action: {
-                    userSession.logout(completion: { result in
-                        
-                    })
-                })
-            }
-            .padding()
-            PokedexView()
-        }
-    }
 }
