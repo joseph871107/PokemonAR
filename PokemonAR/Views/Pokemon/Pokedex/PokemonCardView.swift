@@ -53,7 +53,11 @@ struct PokemonCardView: View {
     }
     
     var pokemon: Pokemon {
-        pokebag.pokemons[index]
+        if pokebag.pokemons.count > index {
+            return pokebag.pokemons[index]
+        } else {
+            return Pokemon(pokedexId: 1)
+        }
     }
 }
 

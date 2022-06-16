@@ -25,9 +25,6 @@ struct PokemonView: View {
     }
     
     var body: some View {
-        if pokebag.pokemons.count <= index{
-            Text("Something wrong")
-        } else {
             ZStack {
                 Color.pokemonRed
                     .ignoresSafeArea()
@@ -64,11 +61,14 @@ struct PokemonView: View {
                     }
                 }
             }
-        }
     }
     
     var pokemon: Pokemon {
-        pokebag.pokemons[index]
+        if pokebag.pokemons.count > index {
+            return pokebag.pokemons[index]
+        } else {
+            return Pokemon(pokedexId: 1)
+        }
     }
 }
 
