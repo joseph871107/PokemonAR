@@ -11,10 +11,10 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var userSession: UserSessionModel
     
-    @State var showSheet = false
-    @State var showWebview = false
-    
     @State var frame = CGRect()
+    
+    @State var isShowing: Bool = false
+    @State var sheetSelect: HomeSheet = .whats_new
     
     var body: some View {
         GeometryReader { geometry in
@@ -60,7 +60,7 @@ struct HomeView: View {
                             VStack{
                                 Divider()
                                 DualTriggerView()
-                                NewsTriggerView(showSheet: $showSheet, showWebview: $showWebview)
+                                NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                             }
                         }
                         .padding(.top, imgSize * 0.5)
@@ -69,12 +69,8 @@ struct HomeView: View {
                 )
             }
         }
-        .sheet(isPresented: $showSheet, content: {
-            if showWebview {
-                WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
-            } else {
-                AccountSettingView(showSettings: $showSheet)
-            }
+        .sheet(isPresented: $isShowing, content: {
+            HomeSheetSelectView(isShowing: $isShowing, sheetSelect: $sheetSelect)
         })
     }
     
@@ -92,18 +88,35 @@ struct HomeView: View {
                 userSession.logout()
             }, label: {
                 Text("Logout")
-                    .foregroundColor(.white)
             })
         })
         ToolbarItem(placement: .navigationBarLeading, content: {
             Button(action: {
-                showSheet = true
-                showWebview = false
+                isShowing = true
+                sheetSelect = .settins
             }, label: {
                 Text("Settings")
-                    .foregroundColor(.white)
             })
         })
+    }
+}
+
+enum HomeSheet {
+    case settins
+    case whats_new
+}
+
+struct HomeSheetSelectView: View {
+    @Binding var isShowing: Bool
+    @Binding var sheetSelect: HomeSheet
+    
+    var body: some View {
+        switch sheetSelect {
+        case .settins:
+            AccountSettingView(showSettings: $isShowing)
+        case .whats_new:
+            WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
+        }
     }
 }
 
@@ -126,19 +139,12 @@ func getHomeView() -> some View {
 struct LevelView : View {
     @EnvironmentObject var userSession: UserSessionModel
     
-    @State var animatedValue = CGFloat(0)
-    
     var body: some View {
         VStack{
-            Text("LV: \(userSession.userModel.data.level)")
+            Text("LV: \(userSession.userModel.level)")
                 .font(.title)
-            ExperienceView(value: $animatedValue)
+            ExperienceView(value: $userSession.userModel.remainExperiencePercentage)
                 .frame(height: 10)
-                .onAppear(perform: {
-                    withAnimation(.spring(), {
-                        animatedValue = userSession.userModel.data.remainExperiencePercentage
-                    })
-                })
         }
     }
 }
@@ -164,11 +170,11 @@ struct DualTriggerView : View {
 
 struct NewsTriggerView : View {
     @Binding var showSheet: Bool
-    @Binding var showWebview: Bool
+    @Binding var sheetSelect: HomeSheet
     
     var body: some View {
         Button(action: {
-            showWebview = true
+            sheetSelect = .whats_new
             showSheet = true
         }, label: {
             Text("What's New?")

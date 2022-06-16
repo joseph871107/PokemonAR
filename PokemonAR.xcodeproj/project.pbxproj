@@ -10,6 +10,7 @@
 		1E80B32721521BCC7B34949C /* Pods_PokemonAR.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7188819D4ABCA5FEB2A57A /* Pods_PokemonAR.framework */; };
 		7015DB7C285A669E003E87CC /* Publisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015DB7B285A669E003E87CC /* Publisher.swift */; };
 		7015DB7E285A7814003E87CC /* ScallingCircles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015DB7D285A7814003E87CC /* ScallingCircles.swift */; };
+		7015DB80285A7FBC003E87CC /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015DB7F285A7FBC003E87CC /* SearchBar.swift */; };
 		7018BE15285655D700311E26 /* detect.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 7018BE13285655D500311E26 /* detect.tflite */; };
 		7018BE16285655D700311E26 /* labelmap.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7018BE14285655D700311E26 /* labelmap.txt */; };
 		7018BE1C285655F600311E26 /* OverlayViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BE18285655F200311E26 /* OverlayViewRepresentable.swift */; };
@@ -48,6 +49,8 @@
 		7018BE6D28566B5200311E26 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7018BE6C28566B5200311E26 /* FirebaseFirestoreSwift */; };
 		7018BEBE28576B9300311E26 /* ExperienceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BEBD28576B9300311E26 /* ExperienceView.swift */; };
 		7018BEC4285781D200311E26 /* PokeBagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */; };
+		708418DF285B172B00A18B57 /* PokemonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708418DE285B172B00A18B57 /* PokemonType.swift */; };
+		708418E1285B85F700A18B57 /* ToolbarTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708418E0285B85F700A18B57 /* ToolbarTheme.swift */; };
 		708C9A072858A94C00FAD13B /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A062858A94C00FAD13B /* FacebookCore */; };
 		708C9A092858A94C00FAD13B /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A082858A94C00FAD13B /* FacebookLogin */; };
 		708C9A0C2858AAA200FAD13B /* FBLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A0B2858AAA200FAD13B /* FBLoginView.swift */; };
@@ -81,6 +84,7 @@
 		661EBCB319BEACFB38192437 /* Pods-PokemonAR.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PokemonAR.release.xcconfig"; path = "Target Support Files/Pods-PokemonAR/Pods-PokemonAR.release.xcconfig"; sourceTree = "<group>"; };
 		7015DB7B285A669E003E87CC /* Publisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publisher.swift; sourceTree = "<group>"; };
 		7015DB7D285A7814003E87CC /* ScallingCircles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScallingCircles.swift; sourceTree = "<group>"; };
+		7015DB7F285A7FBC003E87CC /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		7018BE13285655D500311E26 /* detect.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = detect.tflite; sourceTree = "<group>"; };
 		7018BE14285655D700311E26 /* labelmap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		7018BE18285655F200311E26 /* OverlayViewRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlayViewRepresentable.swift; sourceTree = "<group>"; };
@@ -115,6 +119,8 @@
 		7018BE632856648600311E26 /* UserDataViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataViewModel.swift; sourceTree = "<group>"; };
 		7018BEBD28576B9300311E26 /* ExperienceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperienceView.swift; sourceTree = "<group>"; };
 		7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokeBagViewModel.swift; sourceTree = "<group>"; };
+		708418DE285B172B00A18B57 /* PokemonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonType.swift; sourceTree = "<group>"; };
+		708418E0285B85F700A18B57 /* ToolbarTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTheme.swift; sourceTree = "<group>"; };
 		708C9A0B2858AAA200FAD13B /* FBLoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBLoginView.swift; sourceTree = "<group>"; };
 		708C9A102858AD9C00FAD13B /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
 		708C9A122858ADF000FAD13B /* ZStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZStack.swift; sourceTree = "<group>"; };
@@ -258,7 +264,7 @@
 		7018BE4B2856584C00311E26 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				7018BE4C2856585E00311E26 /* Pokedex.swift */,
+				708418DD285B171300A18B57 /* Pokemon */,
 				708C9A3A2859903A00FAD13B /* UserDataModel.swift */,
 			);
 			path = Models;
@@ -313,6 +319,15 @@
 			path = Account;
 			sourceTree = "<group>";
 		};
+		708418DD285B171300A18B57 /* Pokemon */ = {
+			isa = PBXGroup;
+			children = (
+				7018BE4C2856585E00311E26 /* Pokedex.swift */,
+				708418DE285B172B00A18B57 /* PokemonType.swift */,
+			);
+			path = Pokemon;
+			sourceTree = "<group>";
+		};
 		708C9A0A2858AA9100FAD13B /* Facebook */ = {
 			isa = PBXGroup;
 			children = (
@@ -340,6 +355,8 @@
 				708C9A5A2859F18000FAD13B /* WebView.swift */,
 				7015DB7B285A669E003E87CC /* Publisher.swift */,
 				7015DB7D285A7814003E87CC /* ScallingCircles.swift */,
+				7015DB7F285A7FBC003E87CC /* SearchBar.swift */,
+				708418E0285B85F700A18B57 /* ToolbarTheme.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -537,6 +554,7 @@
 				7018BE5D28565C4C00311E26 /* PokemonView.swift in Sources */,
 				708C9A252858D56300FAD13B /* AsyncImage.swift in Sources */,
 				7018BE392856569200311E26 /* UIColorExtension.swift in Sources */,
+				708418DF285B172B00A18B57 /* PokemonType.swift in Sources */,
 				7018BE1D285655F600311E26 /* OverlayView.swift in Sources */,
 				7018BE2F2856562200311E26 /* CameraFeedManagerPreview.swift in Sources */,
 				708C9A112858AD9C00FAD13B /* URL.swift in Sources */,
@@ -562,6 +580,7 @@
 				708C9A1D2858BD0300FAD13B /* UIViewController.swift in Sources */,
 				7018BE4F2856585F00311E26 /* UserSessionModel.swift in Sources */,
 				708C9A3B2859903A00FAD13B /* UserDataModel.swift in Sources */,
+				7015DB80285A7FBC003E87CC /* SearchBar.swift in Sources */,
 				7018BEC4285781D200311E26 /* PokeBagViewModel.swift in Sources */,
 				708C9A232858CD6900FAD13B /* SpinnerView.swift in Sources */,
 				708C9A5B2859F18100FAD13B /* WebView.swift in Sources */,
@@ -569,6 +588,7 @@
 				708C9A1F2858C30C00FAD13B /* View.swift in Sources */,
 				7018BE3A2856569200311E26 /* CVPixelBufferExtension.swift in Sources */,
 				708C9A0C2858AAA200FAD13B /* FBLoginView.swift in Sources */,
+				708418E1285B85F700A18B57 /* ToolbarTheme.swift in Sources */,
 				7018BE382856569200311E26 /* StringExtension.swift in Sources */,
 				AA9AC59F212D39FC000B4E9D /* AppDelegate.swift in Sources */,
 				7018BE462856576100311E26 /* HomeView.swift in Sources */,

@@ -8,6 +8,8 @@
 
 import Foundation
 
+import SwiftUI
+
 import FirebaseFirestore
 import FirebaseFirestoreSwift
     
@@ -21,11 +23,21 @@ class UserDataViewModel: ObservableObject {
     @Published var userID = ""
     @Published var data = UserDataModel.empty {
         didSet {
-            self.save()
+            self.update()
+            self.saveUserModel()
         }
     }
     
-    func save(){
+    @Published var level: Int = 1
+    @Published var remainExperiencePercentage: CGFloat = 0
+    
+    func update() {
+        objectWillChange.send()
+        self.level = data.level
+        self.remainExperiencePercentage = data.remainExperiencePercentage
+    }
+    
+    func saveUserModel(){
         if self.userID.isEmpty == false {
             do {
                 try store.collection(dbName).document(self.userID).setData(from: self.data)
@@ -59,13 +71,8 @@ class UserDataViewModel: ObservableObject {
         })
     }
     
-    func updateUser(userID: String) {
-        self.userID = userID
-        
-        if userID.isEmpty {
-            stopListening()
-            print("[UserDataViewModel] - Stop listening")
-        } else {
+    func fetch() {
+        if userID.isEmpty == false {
             store.collection(dbName).document(self.userID).getDocument(completion: { snapshotRef, error in
                 if let result = snapshotRef?.exists {
                     if result == true {
@@ -75,6 +82,17 @@ class UserDataViewModel: ObservableObject {
                     }
                 }
             })
+        }
+    }
+    
+    func updateUser(userID: String) {
+        self.userID = userID
+        
+        if userID.isEmpty {
+            stopListening()
+            print("[UserDataViewModel] - Stop listening")
+        } else {
+            self.fetch()
             
             listenChange()
             print("[UserDataViewModel] - Start listening for \(userID) | \(dbName)")
@@ -117,42 +135,9 @@ class UserDataViewModel: ObservableObject {
     
     func listenChange() {
         print("[UserDataViewModel] - [listenChange] - Start listening changes")
-        self.listener = store.collection(dbName).addSnapshotListener { [self] snapshot, error in
-//            DispatchQueue.main.async {
-                guard let snapshot = snapshot else { return }
-                snapshot.documentChanges.forEach { documentChange in
-                    switch documentChange.type {
-                    case .added:
-//                        print("[listenChange] - added")
-                        guard let targetChange = try? documentChange.document.data(as: UserDataModel.self) else {
-                            print(error as Any)
-                            break
-                        }
-                        if self.userID == targetChange.userID {
-                            self.data = targetChange
-                        }
-                    case .modified:
-//                        print("[listenChange] - modified")
-                        guard let targetChange = try? documentChange.document.data(as: UserDataModel.self) else {
-                            print(error as Any)
-                            break
-                        }
-                        if self.userID == targetChange.userID {
-                            self.data = targetChange
-                        }
-                    case .removed:
-//                        print("[listenChange] - removed")
-                        guard let targetChange = try? documentChange.document.data(as: UserDataModel.self) else {
-                            print(error as Any)
-                            break
-                        }
-                        if self.userID == targetChange.userID {
-                            self.data = .empty
-                            self.userID = ""
-                        }
-                    }
-                }
-//            }
+        self.listener = store.collection(dbName).document(userID).addSnapshotListener { [self] snapshot, error in
+            guard let _ = snapshot else { return }
+            self.fetch()
         }
     }
     

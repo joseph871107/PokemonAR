@@ -7,8 +7,10 @@
 //
 
 import Foundation
+
 import UIKit
 import SwiftUI
+import Combine
 
 import FirebaseAuth
 import FirebaseStorage
@@ -22,6 +24,8 @@ class UserSessionModel: ObservableObject {
     
     @Published var isLogged = false
     @Published var photoURL = URL.demo_pikachu
+    
+    @Published var subscriptions = [AnyCancellable]()
     
     var userName: String {
         if let user = user {
@@ -37,7 +41,14 @@ class UserSessionModel: ObservableObject {
     
     init() {
         userModel.userSession = self
+        self.listenUsermodel()
         self.updateUser()
+    }
+    
+    func listenUsermodel() {
+        subscriptions.append(userModel.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        })
     }
     
     func create(username: String, password: String, completion: @escaping (CompletionResult) -> Void = { result in

@@ -31,8 +31,16 @@ struct PokemonCardView: View {
                     .lineLimit(1)
 
                 Spacer()
-                Text("Level : \(pokemon.level)")
-                    .foregroundColor(.primary)
+                HStack{
+                    ForEach(pokemon.info.type, id: \.self) { type in
+                        Image(uiImage: type.info.instance.image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 10)
+                    }
+                    Text("Level : \(pokemon.level)")
+                        .foregroundColor(.primary)
+                }
             }
             .padding(10.0)
         }

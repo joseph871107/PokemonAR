@@ -64,8 +64,13 @@ class PokeBagViewModel: ObservableObject {
     }
     
     func deletePokemon(pokemon: Pokemon) {
-        let documentReference = store.collection(dbName).document(pokemon.id.uuidString)
-        documentReference.delete()
+        let _: Void = store.collection(dbName).whereField("id", isEqualTo: pokemon.id.uuidString).getDocuments { (querySnapshot, error) in
+            if let querySnapshot = querySnapshot {
+                for document in querySnapshot.documents {
+                    document.reference.delete()
+                }
+            }
+        }
     }
     
     func listenChange() {
@@ -128,7 +133,7 @@ class PokeBagViewModel: ObservableObject {
         self.listener = nil
     }
     
-    func addDemo() {
+    func addDemoWithRandomName() {
         let _pokemons = Pokedex.pokedex.pokemons
         for i in _pokemons.indices {
             let pokemon = _pokemons[i]
@@ -142,6 +147,31 @@ class PokeBagViewModel: ObservableObject {
                     displayName: Bool.random() ? UUID().uuidString : ""
                 )
             )
+        }
+    }
+    
+    func addDemo() {
+        let _pokemons = Pokedex.pokedex.pokemons
+        for i in _pokemons.indices {
+            let pokemon = _pokemons[i]
+            
+            self.addPokemon(
+                pokemon: Pokemon(
+                    pokedexId: pokemon.id,
+                    experience: Int.random(
+                        in: 0..<5000
+                    )
+                )
+            )
+        }
+    }
+    
+    func removeAll() {
+        let _pokemons = pokemons
+        for i in _pokemons.indices {
+            let pokemon = _pokemons[i]
+            
+            self.deletePokemon(pokemon: pokemon)
         }
     }
 }

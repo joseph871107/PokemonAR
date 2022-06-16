@@ -10,9 +10,9 @@ import UIKit
 
 class Pokedex{
     struct Pokemon: Codable, Identifiable {
-        let id: Int
+        var id: Int
         let name: Name
-        let type: [String]
+        let type: [PokemonTypeReference]
         let base: Base
         let model: Model
         
@@ -26,6 +26,15 @@ class Pokedex{
             guard let ext = splits.popLast() else { return nil }
             
             return Bundle.main.url(forResource: splits.joined(separator: "."), withExtension: String(ext))
+        }
+    }
+    
+    struct PokemonTypeReference: Codable, Hashable {
+        let id: PokemonType
+        let name: String
+        
+        var info: PokemonType {
+            self.id
         }
     }
 
@@ -74,21 +83,20 @@ class Pokedex{
                     return
             }
             let data = try?Data(contentsOf: url)
-            print(data!)
             
-            if let pokemons = try?JSONDecoder().decode([Pokedex.Pokemon].self,from: data!) {
+            if let pokemons = try?JSONDecoder().decode([Pokedex.Pokemon].self, from: data!) {
                 self.pokemons = pokemons
             }else{
                 print("Error")
             }
-            print("Finished")
+            print("Finished loading sorted_pokedex.json")
        }
     }
 
     static var pokedex = PokedexInfo()
     
     static func getInfoFromId(_ id: Int) -> Pokedex.Pokemon {
-        pokedex.pokemons[id - 1]
+        pokedex.pokemons.first(where: { $0.id == id })!
     }
 }
 

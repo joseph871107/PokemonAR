@@ -19,17 +19,13 @@ struct MainTabView: View {
                 }
             PokedexView()
                 .tabItem {
-                    Label("Pokedex", systemImage: "folder")
+                    Label("Pokedex", systemImage: "square.grid.3x3.fill")
                 }
 //            ViewControllerRepresentable()
 //                .environmentObject(userSession)
 //                .tabItem {
 //                    Label("Catch", systemImage: "photo")
 //                }
-            LoggedView()
-                .tabItem {
-                    Label("Setting", systemImage: "gear")
-                }
         }
         .edgesIgnoringSafeArea(.all)
         .environmentObject(userSession)
@@ -50,28 +46,4 @@ func getMainTabView() -> some View {
         
     })
     return mainTabView
-}
-
-
-struct LoggedView : View {
-    @EnvironmentObject var userSession: UserSessionModel
-    
-    var body: some View {
-        VStack{
-            VStack{
-                Text("UID : \(userSession.user?.uid ?? "")")
-                Text("Email : \(userSession.user?.email ?? "")")
-                Text("Display Name : \(userSession.user?.displayName ?? "")")
-            }
-            VStack{
-                Button("Logout", action: {
-                    userSession.logout(completion: { result in
-                        
-                    })
-                })
-            }
-            .padding()
-//            PokedexView()
-        }
-    }
 }

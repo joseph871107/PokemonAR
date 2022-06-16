@@ -24,6 +24,8 @@ struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsCon
         self.imageHolder = imageHolder
         self.content = content
         self.toolbarItemsContent = toolbarItemsContent
+        
+        ToolbarTheme.navigationBarColor(titleColor: .white)
     }
     
     var body: some View {
