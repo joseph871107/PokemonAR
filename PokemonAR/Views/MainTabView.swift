@@ -21,6 +21,10 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Pokedex", systemImage: "square.grid.3x3.fill")
                 }
+            JSWebViewDemoView()
+                .tabItem {
+                    Label("WebView", systemImage: "square.grid.3x3.fill")
+                }
 //            ViewControllerRepresentable()
 //                .environmentObject(userSession)
 //                .tabItem {

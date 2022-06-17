@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Pokemon</title>
+  <script type="text/javascript" src="js/pokemon.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/pokemon.css" />
+
+  <link href="libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="libraries/bootstrap/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+  </script>
+  <script src="libraries/jQuery/jQuery.js"></script>
+  <script type="text/javascript" src="js/script.js"></script>
+</head>
+
+<body id="container">
+  <svg width="100%" height="100%" viewBox="0 0 800 1200" preserveAspectRatio="none" style="background-color:green"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
+    <g class="game">
+      <image image-rendering="pixelated" href="images/pokemonbg.png" x="0" y="0" width="800" height="600"
+        preserveAspectRatio="none" />
+  
+      <g class="opponent" id="enemyPokemon">
+        <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/FrontSprites/ivysaur.png"
+          width="400" x="410" y="90"></image>
+  
+        <g class="stats" transform="translate(50, 50)">
+          <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
+          </rect>
+          <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
+            <image href="images/pokeball.png" width="40"></image>
+            <image href="images/pokeball.png" width="40" x="40"></image>
+            <image href="images/pokeball.png" width="40" x="80"></image>
+            <image href="images/pokeball.png" width="40" x="120"></image>
+            <image href="images/pokeball.png" width="40" x="160"></image>
+            <text class="hp-count" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">HP: 100</text>
+          </g>
+          <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
+            <text class="name" style="fill:white" x="10" y="40" font-size="30" text-anchor="start">Ivysaur</text>
+            <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
+          </g>
+        </g>
+      </g>
+  
+      <g class="player" id="myPokemon" transform="translate(0,300)">
+        <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/BackSprites/bulbasaur.png"
+          width="500" x="-50" y="-114"></image>
+  
+        <g class="stats" transform="translate(350, 150)">
+          <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
+          </rect>
+          <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
+            <image href="images/pokeball.png" width="40"></image>
+            <image href="images/pokeball.png" width="40" x="40"></image>
+            <image href="images/pokeball.png" width="40" x="80"></image>
+            <image href="images/pokeball.png" width="40" x="120"></image>
+            <image href="images/pokeball.png" width="40" x="160"></image>
+            <text class="hp-count" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">HP: 100</text>
+          </g>
+          <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
+            <text class="name" style="fill:white" x="10" y="40" font-size="30" text-anchor="start">Ivysaur</text>
+            <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="box" transform="translate(0, 600)">
+      <rect rx="20" ry="20" style="fill:rgb(48, 48, 48); stroke:black; stroke-width: 2;" width="800" height="600" />
+      <switch>
+        <foreignObject font-size="30" width="800" height="300" x="10" y="10" alignment-baseline="text-before-edge">
+          <p id="message" class="message" xmlns="http://www.w3.org/1999/xhtml" style="color:white;"></p>
+        </foreignObject>
+      </switch>
+          
+      <g class="actions" transform="translate(0, 300)" width="800" height="300">
+      </g>
+    </g>
+  </svg>
+</body>
