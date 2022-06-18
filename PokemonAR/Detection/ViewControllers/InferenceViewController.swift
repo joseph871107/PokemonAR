@@ -62,7 +62,7 @@ class InferenceViewController: UIViewController {
   private let separatorCellHeight: CGFloat = 42.0
   private let bottomSpacing: CGFloat = 21.0
   private let minThreadCount = 1
-  private let bottomSheetButtonDisplayHeight: CGFloat = 60.0
+  private let bottomSheetButtonDisplayHeight: CGFloat = 20.0
   private let infoTextColor = UIColor.black
   private let lightTextInfoColor = UIColor(displayP3Red: 117.0/255.0, green: 117.0/255.0, blue: 117.0/255.0, alpha: 1.0)
   private let infoFont = UIFont.systemFont(ofSize: 14.0, weight: .regular)

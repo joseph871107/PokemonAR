@@ -53,6 +53,11 @@
 		708418E1285B85F700A18B57 /* ToolbarTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708418E0285B85F700A18B57 /* ToolbarTheme.swift */; };
 		70886B76285CB505009CF3BC /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 70886B75285CB505009CF3BC /* FirebaseDatabase */; };
 		70886B78285CB505009CF3BC /* FirebaseDatabaseSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 70886B77285CB505009CF3BC /* FirebaseDatabaseSwift */; };
+		70886B81285CD891009CF3BC /* ARMain.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 70886B7E285CD890009CF3BC /* ARMain.storyboard */; };
+		70886B82285CD891009CF3BC /* ARViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70886B7F285CD890009CF3BC /* ARViewController.swift */; };
+		70886B83285CD891009CF3BC /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 70886B80285CD890009CF3BC /* art.scnassets */; };
+		70886B85285CDA63009CF3BC /* ARViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70886B84285CDA63009CF3BC /* ARViewControllerRepresentable.swift */; };
+		70886B8A285E2FA3009CF3BC /* CIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70886B89285E2FA2009CF3BC /* CIImage.swift */; };
 		708C9A072858A94C00FAD13B /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A062858A94C00FAD13B /* FacebookCore */; };
 		708C9A092858A94C00FAD13B /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 708C9A082858A94C00FAD13B /* FacebookLogin */; };
 		708C9A0C2858AAA200FAD13B /* FBLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708C9A0B2858AAA200FAD13B /* FBLoginView.swift */; };
@@ -126,6 +131,11 @@
 		7018BEC3285780CB00311E26 /* PokeBagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokeBagViewModel.swift; sourceTree = "<group>"; };
 		708418DE285B172B00A18B57 /* PokemonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonType.swift; sourceTree = "<group>"; };
 		708418E0285B85F700A18B57 /* ToolbarTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTheme.swift; sourceTree = "<group>"; };
+		70886B7E285CD890009CF3BC /* ARMain.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ARMain.storyboard; sourceTree = "<group>"; };
+		70886B7F285CD890009CF3BC /* ARViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARViewController.swift; sourceTree = "<group>"; };
+		70886B80285CD890009CF3BC /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
+		70886B84285CDA63009CF3BC /* ARViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARViewControllerRepresentable.swift; sourceTree = "<group>"; };
+		70886B89285E2FA2009CF3BC /* CIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIImage.swift; sourceTree = "<group>"; };
 		708C9A0B2858AAA200FAD13B /* FBLoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBLoginView.swift; sourceTree = "<group>"; };
 		708C9A102858AD9C00FAD13B /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
 		708C9A122858ADF000FAD13B /* ZStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZStack.swift; sourceTree = "<group>"; };
@@ -339,6 +349,17 @@
 			path = Pokemon;
 			sourceTree = "<group>";
 		};
+		70886B7D285CD859009CF3BC /* AR */ = {
+			isa = PBXGroup;
+			children = (
+				70886B80285CD890009CF3BC /* art.scnassets */,
+				70886B7E285CD890009CF3BC /* ARMain.storyboard */,
+				70886B7F285CD890009CF3BC /* ARViewController.swift */,
+				70886B84285CDA63009CF3BC /* ARViewControllerRepresentable.swift */,
+			);
+			path = AR;
+			sourceTree = "<group>";
+		};
 		708C9A0A2858AA9100FAD13B /* Facebook */ = {
 			isa = PBXGroup;
 			children = (
@@ -369,6 +390,7 @@
 				7015DB7F285A7FBC003E87CC /* SearchBar.swift */,
 				708418E0285B85F700A18B57 /* ToolbarTheme.swift */,
 				70C21CFD285BDE3B00C1B1D4 /* JSWebView.swift */,
+				70886B89285E2FA2009CF3BC /* CIImage.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -407,6 +429,7 @@
 				7018BE5F2856601400311E26 /* pokemon.json-master */,
 				7018BEC2285780CB00311E26 /* ViewModel */,
 				7018BE4B2856584C00311E26 /* Models */,
+				70886B7D285CD859009CF3BC /* AR */,
 				7018BDFF2856521300311E26 /* Detection */,
 				7018BE3D2856574B00311E26 /* Views */,
 				AA9AC59E212D39FC000B4E9D /* AppDelegate.swift */,
@@ -509,6 +532,8 @@
 				AA9AC5A6212D39FD000B4E9D /* Assets.xcassets in Resources */,
 				AA9AC5A4212D39FC000B4E9D /* Main.storyboard in Resources */,
 				7018BE16285655D700311E26 /* labelmap.txt in Resources */,
+				70886B81285CD891009CF3BC /* ARMain.storyboard in Resources */,
+				70886B83285CD891009CF3BC /* art.scnassets in Resources */,
 				7018BE512856589A00311E26 /* GoogleService-Info.plist in Resources */,
 				7018BE602856601800311E26 /* pokemon.json-master in Resources */,
 			);
@@ -580,6 +605,7 @@
 				7015DB7E285A7814003E87CC /* ScallingCircles.swift in Sources */,
 				7018BE2E2856562200311E26 /* CameraFeedManager.swift in Sources */,
 				708C9A372859689000FAD13B /* EditableImageView.swift in Sources */,
+				70886B8A285E2FA3009CF3BC /* CIImage.swift in Sources */,
 				7018BE4E2856585F00311E26 /* Pokedex.swift in Sources */,
 				7018BE472856576100311E26 /* LoginView.swift in Sources */,
 				7018BE292856561100311E26 /* ViewControllerRepresentable.swift in Sources */,
@@ -588,6 +614,7 @@
 				708C9A2D2859463A00FAD13B /* TextAlert.swift in Sources */,
 				7018BE2D2856562200311E26 /* PreviewView.swift in Sources */,
 				7018BE5E28565C4C00311E26 /* PokedexView.swift in Sources */,
+				70886B85285CDA63009CF3BC /* ARViewControllerRepresentable.swift in Sources */,
 				708C9A192858AE4100FAD13B /* Color.swift in Sources */,
 				708C9A2F28594F4800FAD13B /* SignupView.swift in Sources */,
 				7018BE62285660C300311E26 /* MainTabView.swift in Sources */,
@@ -609,6 +636,7 @@
 				7018BE382856569200311E26 /* StringExtension.swift in Sources */,
 				AA9AC59F212D39FC000B4E9D /* AppDelegate.swift in Sources */,
 				7018BE462856576100311E26 /* HomeView.swift in Sources */,
+				70886B82285CD891009CF3BC /* ARViewController.swift in Sources */,
 				7018BE5C28565C4C00311E26 /* PokemonCardView.swift in Sources */,
 				708C9A1B2858AE8600FAD13B /* UIImage.swift in Sources */,
 				7018BE322856563500311E26 /* InfoCell.swift in Sources */,

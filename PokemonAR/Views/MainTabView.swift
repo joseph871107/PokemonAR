@@ -25,11 +25,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("WebView", systemImage: "square.grid.3x3.fill")
                 }
-//            ViewControllerRepresentable()
-//                .environmentObject(userSession)
-//                .tabItem {
-//                    Label("Catch", systemImage: "photo")
-//                }
+            ARViewControllerRepresentable()
+                .environmentObject(userSession)
+                .tabItem {
+                    Label("Catch", systemImage: "lasso")
+                }
         }
         .edgesIgnoringSafeArea(.all)
         .environmentObject(userSession)
