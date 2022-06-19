@@ -17,10 +17,11 @@ struct PokedexView: View {
     @StateObject var pokebag = PokeBagViewModel()
     @State private var logOutTrigger: AnyCancellable?
     
+    @State var gridSize: Double = 100
+    @State var gridMin: Double  = 0
+    @State var gridMax: Double  = 1000
     @State var filtertext = ""
     @State var selections = Dictionary(uniqueKeysWithValues: PokemonType.allCasesWithoutUnused.map{ ($0, false) })
-    
-    var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
         GeometryReader { geometry in
@@ -71,72 +72,101 @@ struct PokedexView: View {
                                 }
                                 SearchBar(text: $filtertext, color: .white.opacity(0.5), primaryColor: .white)
                                     .padding()
+                                    .padding(.top, -10)
+                                Slider(value: $gridSize, in: gridMin...gridMax, label: {
+                                    Text("Change for grid size")
+                                }, minimumValueLabel: {
+                                    Image(systemName: "square.grid.3x3.fill")
+                                }, maximumValueLabel: {
+                                    Image(systemName: "square.grid.2x2.fill")
+                                })
+                                .padding(.top, -20)
+                                .padding(.horizontal)
                             }
                         }
                         .frame(height: geo.size.height * 0.2)
-                        ScrollView {
-                            LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                                ForEach(pokebag.pokemons.filter({ pokemon in
-                                    let p_name = pokemon.info.name.english
-                                    let l_p_name = p_name.lowercased()
-                                    
-                                    let name = pokemon.name
-                                    let l_name = name.lowercased()
-                                    
-                                    let text = filtertext
-                                    let l_text = text.lowercased()
-                                    
-                                    let types = selections.filter({ (key, value) in
-                                        value
-                                    }).map{ (key, value) -> Bool in
-                                        let value = selections[key]!
-                                        if value {
-                                            if pokemon.info.type.first(where: { $0.info == key}) != nil {
-                                                return value
-                                            }
-                                        }
-                                        return false
-                                    }
-                                    
-                                    return (
-                                        (
-                                            p_name.contains(text) ||
-                                            p_name.contains(l_text) ||
-                                            
-                                            l_p_name.contains(text) ||
-                                            l_p_name.contains(l_text) ||
-                                            
-                                            name.contains(text) ||
-                                            name.contains(l_text) ||
-                                            
-                                            l_name.contains(text) ||
-                                            l_name.contains(l_text) ||
-                                            
-                                            filtertext.isEmpty
-                                        ) && (
-                                            !types.contains(false) ||
-                                            selections.values.filter({ $0 }).count == 0
-                                        )
+                        
+                        GeometryReader { geo_for_pokedex in
+                            let gridItemLayout = [
+                                GridItem(
+                                    .adaptive(
+                                        minimum: gridSize
                                     )
-                                })) { pokemon in
-                                    PokemonCardView(index: pokebag.pokemons.firstIndex(of: pokemon)!)
-                                        .environmentObject(pokebag)
-                                        .shadow(radius: 10)
-                                        .onTapGesture {
-                                            selectedPokemonIndex = pokebag.pokemons.firstIndex(of: pokemon)!
-                                            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
-                                                show = true
+                                )
+                            ]
+                            let spacing: Double = 20
+                            ScrollView {
+                                LazyVGrid(columns: gridItemLayout, spacing: spacing) {
+                                    ForEach(pokebag.pokemons.filter({ pokemon in
+                                        let p_name = pokemon.info.name.english
+                                        let l_p_name = p_name.lowercased()
+                                        
+                                        let name = pokemon.name
+                                        let l_name = name.lowercased()
+                                        
+                                        let text = filtertext
+                                        let l_text = text.lowercased()
+                                        
+                                        let types = selections.filter({ (key, value) in
+                                            value
+                                        }).map{ (key, value) -> Bool in
+                                            let value = selections[key]!
+                                            if value {
+                                                if pokemon.info.type.first(where: { $0.info == key}) != nil {
+                                                    return value
+                                                }
                                             }
+                                            return false
                                         }
-                                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                                        
+                                        return (
+                                            (
+                                                p_name.contains(text) ||
+                                                p_name.contains(l_text) ||
+                                                
+                                                l_p_name.contains(text) ||
+                                                l_p_name.contains(l_text) ||
+                                                
+                                                name.contains(text) ||
+                                                name.contains(l_text) ||
+                                                
+                                                l_name.contains(text) ||
+                                                l_name.contains(l_text) ||
+                                                
+                                                filtertext.isEmpty
+                                            ) && (
+                                                !types.contains(false) ||
+                                                selections.values.filter({ $0 }).count == 0
+                                            )
+                                        )
+                                    })) { pokemon in
+                                        PokemonCardView(index: pokebag.pokemons.firstIndex(of: pokemon)!)
+                                            .environmentObject(pokebag)
+                                            .shadow(radius: 10)
+                                            .onTapGesture {
+                                                selectedPokemonIndex = pokebag.pokemons.firstIndex(of: pokemon)!
+                                                withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                                                    show = true
+                                                }
+                                            }
+                                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                                    }
                                 }
+                                .padding()
                             }
-                            .padding()
+                            .frame(width: geo_for_pokedex.size.width, height: geo_for_pokedex.size.height)
+                            .onLongPressGesture(perform: {
+                                pokebag.pokemons.append(Pokemon(pokedexId: 1))
+                            })
+                            .foregroundColor(.white)
+                            .onAppear(perform: {
+                                gridSize = geo_for_pokedex.size.width
+                                gridMin = gridSize / 4
+                                gridMax = gridSize / 2
+                                gridSize = gridMin
+                                
+                            })
                         }
-                        .onLongPressGesture(perform: {
-                            pokebag.pokemons.append(Pokemon(pokedexId: 1))
-                        })
-                        .foregroundColor(.white)
                         
                         let bottomSelectionHeight = CGFloat(50)
                         ScrollView(.horizontal) {
