@@ -33,7 +33,9 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     var frameCount = 0
     
     // Holds the results at any time
-    private var result: Result?
+    var result: Result?
+    var grids = [Grid]()
+    private let context = CIContext()
     private var previousInferenceTimeMs: TimeInterval = Date.distantPast.timeIntervalSince1970 * 1000
     
     // MARK: Controllers that manage functionality
@@ -63,11 +65,12 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         sceneView.showsStatistics = true
         
         // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        let scene = SCNScene()
         
         // Set the scene to the view
         sceneView.scene = scene
-        print(sceneView.snapshot())
+        
+        self.customInitialization()
     }
     
     override func didReceiveMemoryWarning() {
@@ -141,12 +144,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return node
     }
     
-    let context = CIContext()
-    
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        self.process_detection(session, frame: frame)
-    }
-    
     func session(_ session: ARSession, didFailWithError error: Error) {
         self.resumeButton.isHidden = false
     }
@@ -217,6 +214,9 @@ extension ARViewController {
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
         
+        let capturedSize = CGSize(width: CGFloat(width), height: CGFloat(height))
+        self.onReceiveResult(displayResult, capturedSize)
+        
         DispatchQueue.main.async {
             
             // Display results by handing off to the InferenceViewController
@@ -230,7 +230,7 @@ extension ARViewController {
             self.inferenceViewController?.tableView.reloadData()
             
             // Draws the bounding boxes and displays class names and confidence scores.
-            self.drawAfterPerformingCalculations(onInferences: displayResult.inferences, withImageSize: CGSize(width: CGFloat(width), height: CGFloat(height)))
+//            self.drawAfterPerformingCalculations(onInferences: displayResult.inferences, withImageSize: capturedSize)
         }
     }
     

@@ -14,18 +14,22 @@ class Pokedex{
         let name: Name
         let type: [PokemonTypeReference]
         let base: Base
-        let model: Model
+        var model: Model? = .empty
         
         var image: UIImage{
             Bundle.main.url(forResource: "pokemon.json-master/sprites/\(String(format: "%03dMS", id))", withExtension: "png")?.loadImage() ?? UIImage()
         }
         
         var modelUrl: URL? {
-            let name = "Models/\(model.file_name)"
-            var splits = name.split(separator: ".")
-            guard let ext = splits.popLast() else { return nil }
-            
-            return Bundle.main.url(forResource: splits.joined(separator: "."), withExtension: String(ext))
+            if let model = model {
+                let name = "\(model.file_name)"
+                var splits = name.split(separator: ".")
+                guard let _ = splits.popLast() else { return nil }
+                
+                return Bundle.main.url(forResource: splits.joined(separator: "."), withExtension: "scn")
+            } else {
+                return .none
+            }
         }
     }
     
@@ -67,6 +71,10 @@ class Pokedex{
         let name: String
         let gender: String?
         let type: String?
+        
+        static var empty: Model {
+            Model(file_name: "", name: "", gender: "", type: "")
+        }
     }
     
     class PokedexInfo: ObservableObject{
@@ -82,12 +90,13 @@ class Pokedex{
                     print("Json file not found")
                     return
             }
-            let data = try?Data(contentsOf: url)
+            let data = try? Data(contentsOf: url)
             
-            if let pokemons = try?JSONDecoder().decode([Pokedex.Pokemon].self, from: data!) {
+            do {
+                let pokemons = try JSONDecoder().decode([Pokedex.Pokemon].self, from: data!)
                 self.pokemons = pokemons
-            }else{
-                print("Error")
+            } catch {
+                fatalError(String(describing: error))
             }
             print("Finished loading sorted_pokedex.json")
        }

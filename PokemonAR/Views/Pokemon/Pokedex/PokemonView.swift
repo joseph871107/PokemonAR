@@ -33,15 +33,14 @@ struct PokemonView: View {
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-    //                SceneView(
-    //                    scene: scene,
-    //                    pointOfView: cameraNode,
-    //                    options: []
-    //                )
-    //                SceneKitView(objectURL: pokemon.info.modelUrl!)
-    //                .onAppear(perform: {
-    //                    scene = SceneSetup()
-    //                })
+                    VStack {
+                        if let url = pokemon.info.modelUrl {
+                            SceneKitView(objectURL: url)
+                        } else {
+                            Text("3D Model currently not available.")
+                        }
+                    }
+                        .padding()
                     VStack {
                         Text(pokemon.name)
                             .font(.title3)
@@ -90,17 +89,66 @@ func getPokemonView() -> some View {
     return pokemonView
 }
 
-
-func SceneSetup() -> SCNScene {
+struct SceneKitView: UIViewRepresentable {
+    var objectURL: URL?
     
-    // 1
-    let scene = SCNScene()
-
-    // 2
-    let boxGeometry = SCNBox(width: 10.0, height: 10.0, length: 10.0, chamferRadius: 1.0)
-    let boxNode = SCNNode(geometry: boxGeometry)
-    scene.rootNode.addChildNode(boxNode)
-
-    // 3
-    return scene
+    func makeUIView(context: Context) -> SCNView {
+        let scnView = SCNView()
+        scnView.autoenablesDefaultLighting = true
+        
+        if let objectURL = objectURL {
+            do{
+                let scene = try SCNScene(url: objectURL)
+                scnView.scene = scene
+                
+                for node in scene.rootNode.childNodes {
+                    let box = node.boundingBox
+                    let midX = (box.max.x - box.min.x) / 2
+                    let midY = (box.max.y - box.min.y) / 2
+                    let midZ = (box.max.z - box.min.z) / 2
+                    let middle = SCNVector3(x: midX, y: midY, z: midZ)
+                    node.worldPosition = middle
+                }
+                
+                // create and add a camera to the scene
+                let cameraNode = SCNNode()
+                cameraNode.camera = SCNCamera()
+                scene.rootNode.addChildNode(cameraNode)
+                
+                // place the camera
+                cameraNode.position = SCNVector3(x: 0, y: 5, z: 0)
+                
+//                // create and add a light to the scene
+//                let lightNode = SCNNode()
+//                lightNode.light = SCNLight()
+//                lightNode.light!.type = .omni
+//                lightNode.position = SCNVector3(x: 0, y: 5, z: 50)
+//                scene.rootNode.addChildNode(lightNode)
+                
+                // create and add an ambient light to the scene
+                let ambientLightNode = SCNNode()
+                ambientLightNode.light = SCNLight()
+                ambientLightNode.light!.type = .ambient
+                ambientLightNode.light!.color = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+                scene.rootNode.addChildNode(ambientLightNode)
+            } catch {
+                print(String(describing: error))
+            }
+        }
+        
+        return scnView
+    }
+    
+    func updateUIView(_ scnView: SCNView, context: Context) {
+        // allows the user to manipulate the camera
+        scnView.allowsCameraControl = true
+        
+        #if DEBUG
+        // show statistics such as fps and timing information
+        scnView.showsStatistics = true
+        #endif
+        
+        // configure the view
+        scnView.backgroundColor = UIColor.black
+    }
 }
