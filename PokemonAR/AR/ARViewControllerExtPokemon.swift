@@ -25,8 +25,8 @@ extension ARViewController {
 
         if !hitTestResult.isEmpty {
             for result in hitTestResult {
-                let anchor = result.anchor {
-                    let id = self.checkIsPokemonAnchor(anchor: anchor) {
+                if let anchor = result.anchor {
+                    if let id = self.checkIsPokemonAnchor(anchor: anchor) {
                         print(Pokedex.pokedex.pokemons[id])
                     }
                 }
@@ -93,6 +93,11 @@ extension ARViewController {
     }
     
     func addPokemonToScene(inferenceID: Int, anchor: ARAnchor, node: SCNNode) {
+        guard Pokedex.pokedex.pokemons.count > inferenceID else {
+            print("Inference ID(\( inferenceID ) greater than pokemons count(\( Pokedex.pokedex.pokemons.count ))")
+            return
+        }
+            
         let pokemon = Pokedex.pokedex.pokemons[inferenceID]
         
         if let url = pokemon.modelUrl {
@@ -157,21 +162,26 @@ extension ARViewController {
             var isIntantiable = true
             
             let anchorPosition = anchor.transform.columns.3
-            let cameraPosition = sceneView.session.currentFrame?.camera.transform.columns.3
             
-            if length(anchorPosition - cameraPosition) < 0.5 {
-                isIntantiable = false
+            if let camera = sceneView.session.currentFrame?.camera {
+                let cameraPosition = camera.transform.columns.3
+                let distance = length(anchorPosition - cameraPosition)
+                print("Camera Distance : \(distance)")
+                
+                if distance < 0.5 {
+                    isIntantiable = false
+                }
             }
             
             if let anchors = sceneView.session.currentFrame?.anchors {
                 for otherAnchor in anchors {
-                    if let id = self.checkIsPokemonAnchor(anchor: otherAnchor) {
+                    if let _ = self.checkIsPokemonAnchor(anchor: otherAnchor) {
                         let otherAnchorPosition = otherAnchor.transform.columns.3
                         
                         let distance = length(otherAnchorPosition - anchorPosition)
                         print("Distance : \(distance)")
                         
-                        if distance < 1 {
+                        if distance < 1.5 {
                             isIntantiable = false
                         }
                     }

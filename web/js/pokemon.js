@@ -209,7 +209,7 @@ class Receiver {
       rawFile.send(null);
     }
 
-    var pokedex_json_url = resources_path + "/sorted_pokedex.json"
+    var pokedex_json_url = resources_path + "/processed_pokedex.json"
     readTextFile(pokedex_json_url)
   }
 

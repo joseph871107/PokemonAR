@@ -181,7 +181,7 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
      
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         do {
-            let url = Bundle.main.url(forResource: "sorted_pokedex", withExtension: "json", subdirectory: "pokemon.json-master")!
+            let url = Bundle.main.url(forResource: "processed_pokedex", withExtension: "json", subdirectory: "pokemon.json-master")!
             let text = try? String(contentsOf: url, encoding: .utf8)
             if let text = text {
                 self.sendJSON(jsonStr: text)

@@ -1,9 +1,9 @@
 //
 //  Grid.swift
-//  NextReality_Tutorial2
+//  PokemonAR
 //
-//  Created by Ambuj Punn on 5/2/18.
-//  Copyright © 2018 Next Reality. All rights reserved.
+//  Created by Joseph Ouyang on 2022/6/20.
+//  Copyright © 2022 Y Media Labs. All rights reserved.
 //
 
 import Foundation
@@ -11,7 +11,6 @@ import SceneKit
 import ARKit
 
 class Grid : SCNNode {
-    
     var anchor: ARPlaneAnchor
     var planeGeometry: SCNPlane!
     

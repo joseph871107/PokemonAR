@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 extension CIImage {
-    func toPixelBuffer(context : CIContext, size inSize:CGSize? = nil, gray : Bool = true) -> CVPixelBuffer? {
+    func toPixelBuffer(context : CIContext, size inSize:CGSize? = nil) -> CVPixelBuffer? {
         let attributes = [
             
             kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
@@ -27,7 +27,7 @@ extension CIImage {
         
         CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
         
-        context.render(self, to: pixelBuffer, bounds: CGRect(x: 0, y: 0, width: self.extent.size.width, height: self.extent.size.height), colorSpace: gray ? CGColorSpaceCreateDeviceGray() : self.colorSpace)
+        context.render(self, to: pixelBuffer, bounds: CGRect(x: 0, y: 0, width: self.extent.size.width, height: self.extent.size.height), colorSpace: self.colorSpace)
         CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
         
         return pixelBuffer

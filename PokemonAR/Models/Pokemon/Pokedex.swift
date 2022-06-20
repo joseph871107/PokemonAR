@@ -85,7 +85,7 @@ class Pokedex{
         }
         
         func loadData(){
-            guard let url = Bundle.main.url(forResource: "pokemon.json-master/sorted_pokedex", withExtension: "json")
+            guard let url = Bundle.main.url(forResource: "pokemon.json-master/processed_pokedex", withExtension: "json")
                 else{
                     print("Json file not found")
                     return
@@ -98,7 +98,7 @@ class Pokedex{
             } catch {
                 fatalError(String(describing: error))
             }
-            print("Finished loading sorted_pokedex.json")
+            print("Finished loading processed_pokedex.json")
        }
     }
 
