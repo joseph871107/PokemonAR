@@ -118,10 +118,11 @@ class PokemonTypeSingleton: ObservableObject{
         }
         let data = try?Data(contentsOf: url)
 
-        if let instances = try?JSONDecoder().decode([PokemonTypeInstance].self, from: data!) {
+        do {
+            let instances = try JSONDecoder().decode([PokemonTypeInstance].self, from: data!)
             self.instances = instances
-        }else{
-            print("Error")
+        } catch {
+            fatalError(String(describing: error))
         }
         print("Finished loading type.json")
     }

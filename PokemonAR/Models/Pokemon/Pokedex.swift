@@ -16,6 +16,7 @@ class Pokedex{
         let base: Base
         var model: Model? = .empty
         var evolution: EvolutionReference
+        let skills: [PokemonSkillReference]
         
         var image: UIImage{
             Bundle.main.url(forResource: "pokemon.json-master/sprites/\(String(format: "%03dMS", id))", withExtension: "png")?.loadImage() ?? UIImage()
@@ -76,6 +77,14 @@ class Pokedex{
         
         var info: PokemonType {
             self.id
+        }
+    }
+    
+    struct PokemonSkillReference: Codable, Hashable  {
+        let id: Int
+        
+        var info: PokemonSkillInstance {
+            PokemonSkillSingleton.findSkill(id)
         }
     }
 
@@ -176,6 +185,7 @@ struct Pokemon: Codable, Identifiable, Equatable {
     var pokedexId: Int
     var experience = 0
     var displayName: String = ""
+    var learned_skills: [Pokedex.PokemonSkillReference] = []
     
     var unitsPerLevel: Int {
         return 100
