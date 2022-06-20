@@ -18,6 +18,9 @@ struct PokemonView: View {
     @State var scene: SCNScene?
     @State var animatedExperienceValue = CGFloat(0)
     
+    @State var editProcessGoing = false
+    @State var newName = ""
+    
     var sceneView: SceneView?
     
     var cameraNode: SCNNode? {
@@ -25,14 +28,157 @@ struct PokemonView: View {
     }
     
     var body: some View {
-            ZStack {
-                Color.pokemonRed
-                    .ignoresSafeArea()
+        ZStack {
+            Color.pokemonRed
+                .ignoresSafeArea()
+            GeometryReader { geometry in
                 VStack {
-                    Image(uiImage: pokemon.info.image)
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
+                    HStack(alignment: .top){
+                        VStack {
+                            VStack {
+                                if pokemon.name.isEmpty {
+                                    Text("Pokémon name : \( pokemon.displayName )")
+                                        .font(.title3)
+                                        .fontWeight(.black)
+                                        .foregroundColor(.white)
+                                }
+                                HStack {
+                                    ZStack {
+                                        HStack {
+                                            if !pokemon.name.isEmpty {
+                                                Text("Name : ")
+                                                    .font(.title3)
+                                                    .fontWeight(.black)
+                                                    .foregroundColor(.white)
+                                            }
+                                            Text(pokemon.name)
+                                                .font(.title3)
+                                                .fontWeight(.black)
+                                                .foregroundColor(.white)
+                                                .lineLimit(3)
+                                            Image(systemName: "square.and.pencil")
+                                                .foregroundColor(Color.white)
+                                        }
+                                            .opacity(editProcessGoing ? 0 : 1)
+                                        
+                                        // TextField for edit mode of View
+                                        HStack {
+                                            Text("Name : ")
+                                                .font(.title3)
+                                                .fontWeight(.black)
+                                                .foregroundColor(.white)
+                                            TextField(
+                                                pokemon.displayName,
+                                                text: $newName,
+                                                onEditingChanged: { _ in },
+                                                onCommit: {
+                                                    if pokebag.pokemons.count > index {
+                                                        var mod_pokemon = pokebag.pokemons[index]
+                                                        mod_pokemon.displayName = newName
+                                                        pokebag.modifyPokemon(pokemon: mod_pokemon)
+                                                    }
+                                                    editProcessGoing = false
+                                                }
+                                            )
+                                            .background(Color.white)
+                                            .foregroundColor(.black)
+                                        }
+                                        .opacity(editProcessGoing ? 1 : 0)
+                                    }
+                                    .onTapGesture(perform: { editProcessGoing = true } )
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            VStack {
+                                Image(uiImage: pokemon.info.image)
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(minWidth: geometry.size.width * 0.2)
+                                Text("Pokédex ID : \( pokemon.info.id )")
+                                    .font(.caption)
+                                    .fontWeight(.black)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Divider()
+                            
+                            ZStack{
+                                ExperienceView(value: $animatedExperienceValue)
+                                    .frame(height: 30)
+                                    .onAppear(perform: {
+                                        animatedExperienceValue = pokemon.remainExperiencePercentage
+                                    })
+                                Text("Level : \(pokemon.level)")
+                                    .fontWeight(.black)
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
+                        }
+                        
+                        Divider()
+                        
+                        VStack {
+                            Text("Evolution")
+                                .font(.title3)
+                                .fontWeight(.black)
+                                .foregroundColor(.white)
+                            EvolutionView(pokemon: pokemon.info)
+                        }
+                        .frame(minWidth: geometry.size.width * 0.5)
+                    }
+                    .frame(maxHeight: geometry.size.height * 0.5)
+                    
+                    HStack {
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("Attack : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.Attack )")
+                            }
+                            HStack {
+                                Text("Defense : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.Defense )")
+                            }
+                            HStack {
+                                Text("HP : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.HP )")
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("Speed : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.Speed )")
+                            }
+                            HStack {
+                                Text("Special Attack : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.SpAttack )")
+                            }
+                            HStack {
+                                Text("Special Defense : ")
+                                Spacer()
+                                Text("\( pokemon.info.base.SpDefense )")
+                            }
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundColor(.white)
+                    .padding()
+                    .cornerRadius(10)
+                    .border(Color.white, width: 2)
+                    .frame(maxHeight: geometry.size.height * 0.15)
+                    
+                    Divider()
+                    
                     VStack {
                         if let url = pokemon.info.modelUrl {
                             SceneKitView(objectURL: url)
@@ -40,26 +186,10 @@ struct PokemonView: View {
                             Text("3D Model currently not available.")
                         }
                     }
-                        .padding()
-                    VStack {
-                        Text(pokemon.name)
-                            .font(.title3)
-                            .fontWeight(.black)
-                            .foregroundColor(.white)
-                            .lineLimit(3)
-                        VStack{
-                            Text("Level : \(pokemon.level)")
-                                .foregroundColor(.white)
-                            ExperienceView(value: $animatedExperienceValue)
-                                .frame(height: 30)
-                                .onAppear(perform: {
-                                    animatedExperienceValue = pokemon.remainExperiencePercentage
-                                })
-                        }
-                        .padding()
-                    }
                 }
             }
+            .padding()
+        }
     }
     
     var pokemon: Pokemon {
@@ -79,7 +209,7 @@ struct PokemonView_Previews: PreviewProvider {
 
 func getPokemonView() -> some View {
     let pokebag = PokeBagViewModel()
-    var pokemon = Pokemon(pokedexId: 1)
+    var pokemon = Pokemon(pokedexId: 133)
     pokemon.experience = 175
     pokebag.pokemons.append(pokemon)
     
@@ -118,13 +248,6 @@ struct SceneKitView: UIViewRepresentable {
                 // place the camera
                 cameraNode.position = SCNVector3(x: 0, y: 5, z: 0)
                 
-//                // create and add a light to the scene
-//                let lightNode = SCNNode()
-//                lightNode.light = SCNLight()
-//                lightNode.light!.type = .omni
-//                lightNode.position = SCNVector3(x: 0, y: 5, z: 50)
-//                scene.rootNode.addChildNode(lightNode)
-                
                 // create and add an ambient light to the scene
                 let ambientLightNode = SCNNode()
                 ambientLightNode.light = SCNLight()
@@ -149,6 +272,88 @@ struct SceneKitView: UIViewRepresentable {
         #endif
         
         // configure the view
-        scnView.backgroundColor = UIColor.black
+        scnView.backgroundColor = UIColor.white
+    }
+}
+
+struct EvolutionView: View {
+    @State var pokemon: Pokedex.Pokemon
+    
+    var body: some View {
+        PastBranchView(pokemon: pokemon)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(10)
+    }
+}
+
+struct PastBranchView: View {
+    @State var pokemon: Pokedex.Pokemon
+    
+    var body: some View {
+        let evolutionReferences = pokemon.evolution
+        let pastBranches = evolutionReferences.pastBranches.filter({ $0.info?.modelUrl != nil }).sorted(by: { $0.index > $1.index })
+        
+        VStack {
+            HStack{
+                ForEach(pastBranches.indices, id: \.self) { i in
+                    let pastBranch = pastBranches[i]
+                    let pokemon = pastBranch.info
+                    
+                    if i > 0 && i < pastBranches.count {
+                        Image(systemName: "arrow.right")
+                    }
+                    
+                    EvolutionImageView(pokemon: pokemon)
+                }
+            }
+            VStack {
+                if !pastBranches.isEmpty {
+                    Image(systemName: "arrow.down")
+                }
+                
+                EvolutionImageView(pokemon: pokemon)
+                    .border(Color.blue, width: 1)
+                
+                let futureBranches = evolutionReferences.futureBranches
+                FutureBranchView(futureBranches: futureBranches)
+            }
+        }
+    }
+}
+
+struct FutureBranchView: View {
+    @State var futureBranches: [Pokedex.EvolutionReference.FutureBranch]
+    
+    var body: some View {
+        let futureBranches = futureBranches.filter({ $0.info?.modelUrl != nil }).sorted(by: { $0.hier_index > $1.hier_index })
+        
+        HStack {
+            ForEach(futureBranches, id: \.self) { futureBranch in
+                let pokemon = Pokedex.get(futureBranch.id)
+                
+                if let pokemon = pokemon {
+                    VStack {
+                        Image(systemName: "arrow.down")
+                        
+                        EvolutionImageView(pokemon: pokemon)
+                        FutureBranchView(futureBranches: futureBranch.futureBranches)
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct EvolutionImageView: View {
+    @State var pokemon: Pokedex.Pokemon?
+    
+    var body: some View {
+        if let pokemon = pokemon {
+            Image(uiImage: pokemon.image)
+                .renderingMode(.none)
+        } else {
+            Text("Pokemon not available")
+        }
     }
 }

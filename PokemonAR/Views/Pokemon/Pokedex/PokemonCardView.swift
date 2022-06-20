@@ -32,7 +32,7 @@ struct PokemonCardView: View {
 
                 Spacer()
                 HStack{
-                    ForEach(pokemon.info.type, id: \.self) { type in
+                   ForEach(pokemon.info.type, id: \.self) { type in
                         Image(uiImage: type.info.instance.image)
                             .resizable()
                             .scaledToFit()
