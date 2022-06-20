@@ -32,7 +32,7 @@ struct PokemonCardView: View {
 
                 Spacer()
                 HStack{
-                    ForEach(pokemon.info.type, id: \.self) { type in
+                   ForEach(pokemon.info.type, id: \.self) { type in
                         Image(uiImage: type.info.instance.image)
                             .resizable()
                             .scaledToFit()
@@ -53,7 +53,11 @@ struct PokemonCardView: View {
     }
     
     var pokemon: Pokemon {
-        pokebag.pokemons[index]
+        if pokebag.pokemons.count > index {
+            return pokebag.pokemons[index]
+        } else {
+            return Pokemon(pokedexId: 1)
+        }
     }
 }
 

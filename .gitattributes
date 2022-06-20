@@ -1,0 +1,5 @@
+Pokemon[[:space:]]XY/** filter=lfs diff=lfs merge=lfs -text
+pokemon.json-master/sprites/** filter=lfs diff=lfs merge=lfs -text
+pokemon.json-master/FrontSprites/** filter=lfs diff=lfs merge=lfs -text
+pokemon.json-master/BackSprites/** filter=lfs diff=lfs merge=lfs -text
+pokemon.json-master/types/** filter=lfs diff=lfs merge=lfs -text

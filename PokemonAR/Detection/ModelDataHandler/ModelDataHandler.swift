@@ -27,6 +27,7 @@ struct Result {
 struct Inference {
   let confidence: Float
   let className: String
+  let index: Int
   let rect: CGRect
   let displayColor: UIColor
 }
@@ -227,6 +228,7 @@ class ModelDataHandler: NSObject {
       let colorToAssign = colorForClass(withIndex: outputClassIndex + 1)
       let inference = Inference(confidence: score,
                                 className: outputClass,
+                                index: outputClassIndex + 1,
                                 rect: newRect,
                                 displayColor: colorToAssign)
       resultsArray.append(inference)

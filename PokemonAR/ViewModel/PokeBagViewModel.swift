@@ -37,10 +37,14 @@ class PokeBagViewModel: ObservableObject {
         // Fetch all pokemons first to avoid 'Fatal error: each layout item may only occur once'
         // Because not every item update quick enough, so load them at once, then open up the listener
         store.collection(dbName).getDocuments(completion: { snapshotRef, error in
-            self.pokemons = snapshotRef?.documents.map({ document in
-                try! document.data(as: Pokemon.self)
-            }) ?? []
-            self.pokemons = self.pokemons.sorted(by: { $0.createDate > $1.createDate })
+            do {
+                self.pokemons = try snapshotRef?.documents.map({ document in
+                    try document.data(as: Pokemon.self)
+                }) ?? []
+                self.pokemons = self.pokemons.sorted(by: { $0.createDate > $1.createDate })
+            } catch  {
+                print(error)
+            }
         })
         
         listenChange()
@@ -48,10 +52,18 @@ class PokeBagViewModel: ObservableObject {
     }
     
     func modifyPokemon(pokemon: Pokemon) {
-        do {
-            try store.collection(dbName).document(pokemon.id.uuidString).setData(from: pokemon)
-        } catch  {
-            print(error)
+        let _: Void = store.collection(dbName).whereField("id", isEqualTo: pokemon.id.uuidString).getDocuments { (querySnapshot, error) in
+            guard let querySnapshot = querySnapshot else {
+                return
+            }
+            
+            for document in querySnapshot.documents {
+                do {
+                    try document.reference.setData(from: pokemon)
+                } catch  {
+                    print(error)
+                }
+            }
         }
     }
     
@@ -138,15 +150,17 @@ class PokeBagViewModel: ObservableObject {
         for i in _pokemons.indices {
             let pokemon = _pokemons[i]
             
-            self.addPokemon(
-                pokemon: Pokemon(
-                    pokedexId: pokemon.id,
-                    experience: Int.random(
-                        in: 0..<5000
-                    ),
-                    displayName: Bool.random() ? UUID().uuidString : ""
+            if let _ = pokemon.model {
+                self.addPokemon(
+                    pokemon: Pokemon(
+                        pokedexId: pokemon.id,
+                        experience: Int.random(
+                            in: 0..<5000
+                        ),
+                        displayName: Bool.random() ? UUID().uuidString : ""
+                    )
                 )
-            )
+            }
         }
     }
     

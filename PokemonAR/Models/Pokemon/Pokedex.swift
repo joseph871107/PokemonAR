@@ -14,22 +14,63 @@ class Pokedex{
         let name: Name
         let type: [PokemonTypeReference]
         let base: Base
-        let model: Model
+        var model: Model? = .empty
+        var evolution: EvolutionReference
         
         var image: UIImage{
             Bundle.main.url(forResource: "pokemon.json-master/sprites/\(String(format: "%03dMS", id))", withExtension: "png")?.loadImage() ?? UIImage()
         }
         
         var modelUrl: URL? {
-            let name = "Models/\(model.file_name)"
-            var splits = name.split(separator: ".")
-            guard let ext = splits.popLast() else { return nil }
-            
-            return Bundle.main.url(forResource: splits.joined(separator: "."), withExtension: String(ext))
+            if let model = model {
+                let name = "\(model.file_name)"
+                var splits = name.split(separator: ".")
+                guard let _ = splits.popLast() else { return nil }
+                
+                return Bundle.main.url(forResource: splits.joined(separator: "."), withExtension: "scn")
+            } else {
+                return .none
+            }
         }
     }
     
-    struct PokemonTypeReference: Codable, Hashable {
+    struct EvolutionReference: Codable, Hashable {
+        static func == (lhs: Pokedex.EvolutionReference, rhs: Pokedex.EvolutionReference) -> Bool {
+            lhs.pastBranches == rhs.pastBranches && lhs.futureBranches == rhs.futureBranches
+        }
+        
+        var pastBranches: [PastBranch]
+        var futureBranches: [FutureBranch]
+        
+        struct PastBranch: Codable, Hashable {
+            let index: Int
+            let id: Int
+            
+            var info: Pokedex.Pokemon? {
+                return Pokedex.get(id)
+            }
+            
+            static func == (lhs: Pokedex.EvolutionReference.PastBranch, rhs: Pokedex.EvolutionReference.PastBranch) -> Bool {
+                lhs.id == rhs.id
+            }
+        }
+        
+        struct FutureBranch: Codable, Hashable {
+            let hier_index: Int
+            let id: Int
+            let futureBranches: [FutureBranch]
+            
+            var info: Pokedex.Pokemon? {
+                return Pokedex.get(id)
+            }
+            
+            static func == (lhs: Pokedex.EvolutionReference.FutureBranch, rhs: Pokedex.EvolutionReference.FutureBranch) -> Bool {
+                lhs.id == rhs.id
+            }
+        }
+    }
+    
+    struct PokemonTypeReference: Codable, Hashable  {
         let id: PokemonType
         let name: String
         
@@ -38,13 +79,13 @@ class Pokedex{
         }
     }
 
-    struct Name: Codable {
+    struct Name: Codable, Hashable {
         let english: String
         let japanese: String
         let chinese: String
     }
     
-    struct Base: Codable {
+    struct Base: Codable, Hashable {
         let HP: Int
         let Attack: Int
         let Defense: Int
@@ -67,6 +108,10 @@ class Pokedex{
         let name: String
         let gender: String?
         let type: String?
+        
+        static var empty: Model {
+            Model(file_name: "", name: "", gender: "", type: "")
+        }
     }
     
     class PokedexInfo: ObservableObject{
@@ -77,26 +122,50 @@ class Pokedex{
         }
         
         func loadData(){
-            guard let url = Bundle.main.url(forResource: "pokemon.json-master/sorted_pokedex", withExtension: "json")
+            guard let url = Bundle.main.url(forResource: "pokemon.json-master/processed_pokedex", withExtension: "json")
                 else{
                     print("Json file not found")
                     return
             }
-            let data = try?Data(contentsOf: url)
+            let data = try? Data(contentsOf: url)
             
-            if let pokemons = try?JSONDecoder().decode([Pokedex.Pokemon].self, from: data!) {
+            do {
+                let pokemons = try JSONDecoder().decode([Pokedex.Pokemon].self, from: data!)
                 self.pokemons = pokemons
-            }else{
-                print("Error")
+            } catch {
+                fatalError(String(describing: error))
             }
-            print("Finished loading sorted_pokedex.json")
+            print("Finished loading processed_pokedex.json")
        }
     }
 
     static var pokedex = PokedexInfo()
     
     static func getInfoFromId(_ id: Int) -> Pokedex.Pokemon {
-        pokedex.pokemons.first(where: { $0.id == id })!
+        return Pokedex.get(id)!
+    }
+    
+    static func mapFromInferenceID(inferenceID: Int) -> Int? {
+        return nil
+    }
+    
+    static func mapFromPokemonID(pokemonID: Int) -> Int? {
+        return nil
+    }
+    
+    static func findPokemonByName(name: String) -> Int? {
+        if name.contains("Pokemon") {
+            let start = name.index(name.startIndex, offsetBy: 9)
+            if let id = Int(name.substring(with: start..<name.endIndex)) {
+                return id
+            }
+        }
+        
+        return nil
+    }
+    
+    static func get(_ id: Int) -> Pokedex.Pokemon? {
+        return pokedex.pokemons.first(where: { $0.id == id })
     }
 }
 
