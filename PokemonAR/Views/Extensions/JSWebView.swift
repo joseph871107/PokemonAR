@@ -15,23 +15,13 @@ import WebKit
 import JavaScriptCore
 
 struct JSWebViewDemoView: View {
-    @State var view = JSWebView()
+    @EnvironmentObject var observableDecoder: ObservableDecoder
     
     var body: some View {
         GeometryReader { geometry in
             ZStack{
                 Color.blue
-                view
-                VStack {
-                    ZStack {
-                        Color.pokemonRed.ignoresSafeArea()
-                        Text("Classic Battle")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                    }
-                    .frame(height: geometry.size.height * 0.1)
-                    Spacer()
-                }
+                JSWebView(observableDecoder: self.observableDecoder)
             }
         }
     }
@@ -40,11 +30,16 @@ struct JSWebViewDemoView: View {
 struct Previews_JSWebView_Previews: PreviewProvider {
     static var previews: some View {
         JSWebViewDemoView()
+            .environmentObject(ObservableDecoder())
     }
 }
 
 struct JSWebView: UIViewControllerRepresentable {
     @State var viewController = NAHomeViewController()
+    
+    init(observableDecoder: ObservableDecoder) {
+        viewController.observableDecoder = observableDecoder
+    }
     
     func makeUIViewController(context: Context) -> NAHomeViewController {
         return self.viewController
@@ -187,7 +182,6 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
                 self.sendJSON(jsonStr: text)
             }
             
-            observableDecoder.observableViewModel.data = ObservableModel()
             self.syncBack()
         } catch {
             fatalError(String(describing: error))

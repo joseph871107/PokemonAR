@@ -21,11 +21,14 @@ class UserSessionModel: ObservableObject {
     static var session: UserSessionModel?
     @Published var user = Auth.auth().currentUser
     @Published var userModel = UserDataViewModel()
+    @Published var battleObjectDecoder = ObservableDecoder()
     
     @Published var isLogged = false
     @Published var photoURL = URL.demo_pikachu
     
     @Published var subscriptions = [AnyCancellable]()
+    
+    @Published var tabSelection = 1
     
     var userName: String {
         if let user = user {
@@ -332,6 +335,7 @@ class UserSessionModel: ObservableObject {
         self.user = Auth.auth().currentUser
         self.photoURL = self.user?.photoURL ?? URL.demo_pikachu
         self.userModel.updateUser(userID: self.user?.uid ?? "")
+        self.battleObjectDecoder.observableViewModel.updateUser(userID: self.user?.uid ?? "")
         
         if self.user != nil {
             self.isLogged = true

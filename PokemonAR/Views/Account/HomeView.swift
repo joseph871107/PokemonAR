@@ -10,92 +10,97 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var userSession: UserSessionModel
-    
-    @State var frame = CGRect()
+    @EnvironmentObject var pokebag: PokeBagViewModel
     
     @State var isShowing: Bool = false
     @State var sheetSelect: HomeSheet = .whats_new
+    
+    @Binding var enableBattleSheet: Bool
     
     var body: some View {
         GeometryReader { geometry in
             let imgSize = CGFloat(geometry.size.width * 0.5)
             
-            ZStack{
-                ThemeAccountView(
-                    imgSize: imgSize,
-                    imageHolder: {
-                        if let _ = userSession.user?.photoURL {
-                            AsyncImage(
-                                url: $userSession.photoURL,
-                                placeholder: {
-                                    ZStack{
-                                        Circle().fill(Color.white)
-                                        ScallingCircles()
-                                    }
-                                },
-                                image: {
-                                    Image(uiImage: $0)
-                                        .resizable()
+            ThemeAccountView(
+                imgSize: imgSize,
+                imageHolder: {
+                    if let _ = userSession.user?.photoURL {
+                        AsyncImage(
+                            url: $userSession.photoURL,
+                            placeholder: {
+                                ZStack{
+                                    Circle().fill(Color.white)
+                                    ScallingCircles()
                                 }
-                            )
-                                .scaledToFit()
-                                .aspectRatio(contentMode: .fit)
-                                .circleWithBorderNShadow(width: imgSize, height: imgSize)
-                        } else {
-                            Image(uiImage: UIImage.demo_pikachu)
-                                .circleWithBorderNShadow(width: imgSize, height: imgSize)
-                        }
-                    },
-                    content: {
-                        VStack {
-                            VStack {
-                                Text(userSession.userName)
-                                    .font(.largeTitle)
-                                Divider()
-                                LevelView()
-                                Divider()
+                            },
+                            image: {
+                                Image(uiImage: $0)
+                                    .resizable()
                             }
-                            .padding(.horizontal)
-                            Spacer()
-                            VStack{
-                                Divider()
-                                DualTriggerView()
-                                NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
-                            }
-                        }
-                    },
-                    toolbarItemsContent: {
+                        )
+                            .scaledToFit()
+                            .aspectRatio(contentMode: .fit)
+                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                    } else {
+                        Image(uiImage: UIImage.demo_pikachu)
+                            .circleWithBorderNShadow(width: imgSize, height: imgSize)
+                    }
+                },
+                content: {
+                    VStack {
                         VStack {
-                            HStack {
-                                Button(action: {
-                                    isShowing = true
-                                    sheetSelect = .settins
-                                }, label: {
-                                    Text("Settings")
-                                        .foregroundColor(.white)
-                                })
-                                Spacer()
-                                
-                                Text("Home")
-                                    .font(.largeTitle)
+                            Text(userSession.userName)
+                                .font(.largeTitle)
+                            Divider()
+                            LevelView()
+                            Divider()
+                        }
+                        .padding(.top, imgSize * 0.5)
+                        .padding(.horizontal)
+                        VStack{
+                            Divider()
+                            DualTriggerView(showSheet: $enableBattleSheet)
+                            NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
+                        }
+                    }
+                },
+                toolbarItemsContent: {
+                    VStack {
+                        HStack {
+                            Button(action: {
+                                isShowing = true
+                                sheetSelect = .settins
+                            }, label: {
+                                Text("Settings")
                                     .foregroundColor(.white)
-                                
-                                Spacer()
-                                Button(action: {
-                                    userSession.logout()
-                                }, label: {
-                                    Text("Logout")
-                                        .foregroundColor(.white)
-                                })
-                            }
-                            .padding(.top, geometry.size.height * 0.05)
-                            .padding(.horizontal)
+                            })
+                            Spacer()
+                            
+                            Text("Home")
+                                .font(.largeTitle)
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            Button(action: {
+                                userSession.logout()
+                            }, label: {
+                                Text("Logout")
+                                    .foregroundColor(.white)
+                            })
                         }
-                        .frame(height: geometry.size.height * 0.2, alignment: .top)
-                    })
-            }
+                        .padding(.top, geometry.size.height * 0.1)
+                        .padding(.horizontal)
+                    }
+                    .frame(height: geometry.size.height * 0.25, alignment: .top)
+                }
+            )
+            .sheet(isPresented: $isShowing, content: {
+                HomeSheetSelectView(isShowing: $isShowing, sheetSelect: $sheetSelect)
+                    .environmentObject(pokebag)
             })
         }
+        .environmentObject(userSession)
+        .environmentObject(pokebag)
     }
 }
 
@@ -109,11 +114,13 @@ struct HomeSheetSelectView: View {
     @Binding var sheetSelect: HomeSheet
     
     var body: some View {
-        switch sheetSelect {
-        case .settins:
-            AccountSettingView(showSettings: $isShowing)
-        case .whats_new:
-            WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
+        VStack {
+            switch sheetSelect {
+            case .settins:
+                AccountSettingView(showSettings: $isShowing)
+            case .whats_new:
+                WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
+            }
         }
     }
 }
@@ -126,10 +133,12 @@ struct HomeView_Previews: PreviewProvider {
 
 func getHomeView() -> some View {
     let userSession = UserSessionModel()
-    let homeView = HomeView()
+    let pokebag = PokeBagViewModel()
+    let homeView = HomeView(enableBattleSheet: .constant(false))
         .environmentObject(userSession)
+        .environmentObject(pokebag)
     userSession.loginDemo(completion: { result in
-        
+        pokebag.updateUser(userID: userSession.user?.uid ?? "")
     })
     return homeView
 }
@@ -148,11 +157,13 @@ struct LevelView : View {
 }
 
 struct DualTriggerView : View {
+    @Binding var showSheet: Bool
+    
     var height = CGFloat(100)
     
     var body: some View {
         Button(action: {
-            
+            showSheet = true
         }, label: {
             Text("Start dual with people")
                 .padding(.horizontal, 50.0)

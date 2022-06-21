@@ -96,23 +96,25 @@ class BattleModel {
     }
 
     struct CurrentBattle: Codable {
-        var roomID = UUID()
         var myPokemon: Pokemon = Pokemon(pokedexId: 1)
-        var enemyPokemon: Pokemon = Pokemon(pokedexId: 2)
+        var enemyPokemon: Pokemon = Pokemon(pokedexId: 1)
         var availableInfos: AvailableInfos = AvailableInfos()
     }
 }
 
 struct ObservableModel: Codable {
     var battle: BattleModel.CurrentBattle = BattleModel.CurrentBattle()
+    var roomID = UUID()
+    var startUserID: String?
+    var receiveUserID: String?
 }
 
 class ObservableViewModel: ObservableObject {
     private let store = Firestore.firestore()
     var dbName = "observableData"
     private var listener: ListenerRegistration?
+    private var userID = ""
     @Published var didSetFromListener = false
-    
     
     @Published var id = UUID()
     @Published var data: ObservableModel? {
@@ -127,26 +129,135 @@ class ObservableViewModel: ObservableObject {
     }
     
     init() {
-        self.listenChange()
+        if let session = UserSessionModel.session {
+            if let _ = session.user {
+                self.updateUser(userID: session.user?.uid ?? "")
+            }
+        }
+    }
+    
+    func updateUser(userID: String) {
+        self.userID = userID
+        self.data = ObservableModel()
+        
+        self.deleteUserModel()
+        self.fetch()
+        self.data?.startUserID = userID
+        self.forceSaveUserModel()
+        
+        listenChange()
+        print("[ObservableViewModel] - Start listening for \(userID) | \(dbName)")
+    }
+    
+    func updatePokemon(pokemon: Pokemon) {
+        self.data?.battle.myPokemon = pokemon
+        self.forceSaveUserModel()
+        self.update()
+    }
+    
+    func updateEnemyPokemon(userID: String? = nil, pokemon: Pokemon) {
+        self.data?.battle.enemyPokemon = pokemon
+        self.data?.receiveUserID = userID
+        self.forceSaveUserModel()
+        self.update()
     }
     
     func update() {
         objectWillChange.send()
     }
     
-    func saveUserModel(){
-        do {
-            if let data = self.data {
-                try store.collection(dbName).document(self.id.uuidString).setData(from: data)
+    func getBattleQuery(
+        onStarter: @escaping (QuerySnapshot) -> Void = { querySnapshot in
+        
+        },
+        onReceiver: @escaping (QuerySnapshot) -> Void = { querySnapshot in
+            
+        },
+        onBoth: @escaping (QuerySnapshot) -> Void = { querySnapshot in
+            
+        }
+    ) {
+        guard !userID.isEmpty else {
+            return
+        }
+        
+        store.collection(dbName).whereField("startUserID", isEqualTo: userID).getDocuments { (querySnapshot, error) in
+            guard let querySnapshot = querySnapshot else {
+                return
             }
-        } catch {
-            fatalError(String(describing: error))
+            
+            if !querySnapshot.isEmpty {
+                onStarter(querySnapshot)
+                onBoth(querySnapshot)
+            }
+        }
+        
+        store.collection(dbName).whereField("receiveUserID", isEqualTo: userID).getDocuments { (querySnapshot, error) in
+            guard let querySnapshot = querySnapshot else {
+                return
+            }
+            
+            if !querySnapshot.isEmpty {
+                onReceiver(querySnapshot)
+                onBoth(querySnapshot)
+            }
         }
     }
     
+    func forceSaveUserModel() {
+        print("[ObservableViewModel] - forceSaveUserModel")
+        print(userID)
+        
+        guard !userID.isEmpty else {
+            return
+        }
+        
+        do {
+            try store.collection(dbName).document(id.uuidString).setData(from: self.data)
+            print("[ObservableViewModel] - forceSaveUserModel saved")
+        } catch {
+            print(error)
+        }
+    }
+    
+    func saveUserModel() {
+        print("[ObservableViewModel] - saveUserModel")
+        
+        if let data = self.data {
+            self.getBattleQuery(onBoth: { querySnapshot in
+                let snapshotRef = querySnapshot.documents.first
+                
+                if let snapshotRef = snapshotRef {
+                    do {
+                        try snapshotRef.reference.setData(from: data)
+                        print("[ObservableViewModel] - saveUserModel saved")
+                    } catch  {
+                        print(error)
+                    }
+                }
+            })
+        }
+    }
+    
+    func deleteUserModel() {
+        print("[ObservableViewModel] - deleteUserModel")
+        
+        self.getBattleQuery(onBoth: { querySnapshot in
+            for snapshotRef in querySnapshot.documents {
+                snapshotRef.reference.delete()
+                print("[ObservableViewModel] - deleteUserModel deleted")
+            }
+        })
+    }
+    
     func fetch() {
-        store.collection(dbName).document(self.id.uuidString).getDocument(completion: { snapshotRef, error in
+        print("[ObservableViewModel] - fetch")
+        
+        self.getBattleQuery(onBoth: { querySnapshot in
+            let snapshotRef = querySnapshot.documents.first
+            
             self.updateFromDocumentSnapshot(snapshotRef: snapshotRef)
+            print("[ObservableViewModel] - fetched")
         })
     }
     
@@ -164,10 +275,12 @@ class ObservableViewModel: ObservableObject {
     
     func listenChange() {
         print("[ObservableViewModel] - [listenChange] - Start listening changes")
-        self.listener = store.collection(dbName).document(self.id.uuidString).addSnapshotListener(includeMetadataChanges: true) { [self] snapshot, error in
-            
-            self.didSetFromListener = true
-            self.updateFromDocumentSnapshot(snapshotRef: snapshot)
+        
+        if !userID.isEmpty{
+            self.listener = store.collection(dbName).document(userID).addSnapshotListener(includeMetadataChanges: true) { [self] snapshot, error in
+                self.didSetFromListener = true
+                self.updateFromDocumentSnapshot(snapshotRef: snapshot)
+            }
         }
     }
     

@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 class Pokedex{
-    struct Pokemon: Codable, Identifiable {
+    struct PokemonInfo: Codable, Identifiable {
         var id: Int
         let name: Name
         let type: [PokemonTypeReference]
@@ -33,6 +33,16 @@ class Pokedex{
                 return .none
             }
         }
+        
+        func randomlyGenerate() -> Pokemon {
+            let skillCount = Int.random(in: 1...4)
+            var skillsIndex: [Int] = Array(repeating: 0, count: skillCount)
+            skillsIndex = skillsIndex.map({ _ in Int.random(in: 0...(skills.count-1)) })
+            
+            return Pokemon(
+                pokedexId: id,
+                experience: Int.random(in: 0...1000), learned_skills: skillsIndex.map({ skills[$0] }))
+        }
     }
     
     struct EvolutionReference: Codable, Hashable {
@@ -47,7 +57,7 @@ class Pokedex{
             let index: Int
             let id: Int
             
-            var info: Pokedex.Pokemon? {
+            var info: Pokedex.PokemonInfo? {
                 return Pokedex.get(id)
             }
             
@@ -61,7 +71,7 @@ class Pokedex{
             let id: Int
             let futureBranches: [FutureBranch]
             
-            var info: Pokedex.Pokemon? {
+            var info: Pokedex.PokemonInfo? {
                 return Pokedex.get(id)
             }
             
@@ -124,7 +134,7 @@ class Pokedex{
     }
     
     class PokedexInfo: ObservableObject{
-        @Published var pokemons=[Pokedex.Pokemon]()
+        @Published var pokemons = [Pokedex.PokemonInfo]()
         
         init(){
             loadData()
@@ -139,8 +149,8 @@ class Pokedex{
             let data = try? Data(contentsOf: url)
             
             do {
-                let pokemons = try JSONDecoder().decode([Pokedex.Pokemon].self, from: data!)
-                self.pokemons = pokemons
+                let pokemons = try JSONDecoder().decode([Pokedex.PokemonInfo].self, from: data!)
+                self.pokemons = pokemons.filter({ $0.modelUrl != nil })
             } catch {
                 fatalError(String(describing: error))
             }
@@ -150,16 +160,16 @@ class Pokedex{
 
     static var pokedex = PokedexInfo()
     
-    static func getInfoFromId(_ id: Int) -> Pokedex.Pokemon {
+    static func getInfoFromId(_ id: Int) -> Pokedex.PokemonInfo {
         return Pokedex.get(id)!
     }
     
-    static func mapFromInferenceID(inferenceID: Int) -> Int? {
-        return nil
+    static func mapFromInferenceID(inferenceID: Int) -> Int {
+        return Int(round(Double(inferenceID - 1) / Double(90) * Double(self.pokedex.pokemons.count)) + 1)
     }
     
-    static func mapFromPokemonID(pokemonID: Int) -> Int? {
-        return nil
+    static func mapFromPokemonID(pokemonID: Int) -> Int {
+        return 1
     }
     
     static func findPokemonByName(name: String) -> Int? {
@@ -173,50 +183,8 @@ class Pokedex{
         return nil
     }
     
-    static func get(_ id: Int) -> Pokedex.Pokemon? {
+    static func get(_ id: Int) -> Pokedex.PokemonInfo? {
         return pokedex.pokemons.first(where: { $0.id == id })
-    }
-}
-
-struct Pokemon: Codable, Identifiable, Equatable {
-    var id = UUID()
-    var createDate = Date()
-    
-    var pokedexId: Int
-    var experience = 0
-    var displayName: String = ""
-    var learned_skills: [Pokedex.PokemonSkillReference] = []
-    
-    var unitsPerLevel: Int {
-        return 100
-    }
-    
-    var level: Int {
-        return (self.experience / unitsPerLevel) + 1
-    }
-    
-    var remainExperience: Int {
-        return experience - (level - 1) * unitsPerLevel
-    }
-    
-    var remainExperiencePercentage: CGFloat {
-        return CGFloat(Double(remainExperience) / Double(unitsPerLevel))
-    }
-    
-    var name: String {
-        if displayName == "" {
-            return info.name.english
-        } else {
-            return displayName
-        }
-    }
-    
-    var info: Pokedex.Pokemon {
-        Pokedex.getInfoFromId(self.pokedexId)
-    }
-    
-    static func == (lhs: Pokemon, rhs: Pokemon) -> Bool {
-       return lhs.id == rhs.id
     }
 }
 

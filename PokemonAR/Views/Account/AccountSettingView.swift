@@ -68,7 +68,6 @@ struct AccountSettingView: View {
                         Text("Account Settings")
                             .font(.title)
                             .foregroundColor(.white)
-                            .padding(.top, 50)
                             .padding(.top, geometry.size.height * 0.02)
                     }
                     .frame(height: geometry.size.height * 0.15, alignment: .top)

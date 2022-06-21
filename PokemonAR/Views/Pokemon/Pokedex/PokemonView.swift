@@ -277,7 +277,7 @@ struct SceneKitView: UIViewRepresentable {
 }
 
 struct EvolutionView: View {
-    @State var pokemon: Pokedex.Pokemon
+    @State var pokemon: Pokedex.PokemonInfo
     
     var body: some View {
         PastBranchView(pokemon: pokemon)
@@ -288,7 +288,7 @@ struct EvolutionView: View {
 }
 
 struct PastBranchView: View {
-    @State var pokemon: Pokedex.Pokemon
+    @State var pokemon: Pokedex.PokemonInfo
     
     var body: some View {
         let evolutionReferences = pokemon.evolution
@@ -346,7 +346,7 @@ struct FutureBranchView: View {
 }
 
 struct EvolutionImageView: View {
-    @State var pokemon: Pokedex.Pokemon?
+    @State var pokemon: Pokedex.PokemonInfo?
     
     var body: some View {
         if let pokemon = pokemon {
