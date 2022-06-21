@@ -63,41 +63,39 @@ struct HomeView: View {
                                 NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                             }
                         }
-                        .padding(.top, imgSize * 0.5)
                     },
-                    toolbarItemsContent: MyToolBarContent()
-                )
+                    toolbarItemsContent: {
+                        VStack {
+                            HStack {
+                                Button(action: {
+                                    isShowing = true
+                                    sheetSelect = .settins
+                                }, label: {
+                                    Text("Settings")
+                                        .foregroundColor(.white)
+                                })
+                                Spacer()
+                                
+                                Text("Home")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.white)
+                                
+                                Spacer()
+                                Button(action: {
+                                    userSession.logout()
+                                }, label: {
+                                    Text("Logout")
+                                        .foregroundColor(.white)
+                                })
+                            }
+                            .padding(.top, geometry.size.height * 0.05)
+                            .padding(.horizontal)
+                        }
+                        .frame(height: geometry.size.height * 0.2, alignment: .top)
+                    })
             }
+            })
         }
-        .sheet(isPresented: $isShowing, content: {
-            HomeSheetSelectView(isShowing: $isShowing, sheetSelect: $sheetSelect)
-        })
-    }
-    
-    @ToolbarContentBuilder
-    func MyToolBarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .principal, content: {
-            HStack{
-                Text("Home")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
-            }
-        })
-        ToolbarItem(placement: .navigationBarTrailing, content: {
-            Button(action: {
-                userSession.logout()
-            }, label: {
-                Text("Logout")
-            })
-        })
-        ToolbarItem(placement: .navigationBarLeading, content: {
-            Button(action: {
-                isShowing = true
-                sheetSelect = .settins
-            }, label: {
-                Text("Settings")
-            })
-        })
     }
 }
 

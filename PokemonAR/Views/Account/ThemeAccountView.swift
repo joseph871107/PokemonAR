@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsContent: ToolbarContent>: View {
+struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsContent: View>: View {
     var imgSize: CGFloat
     var imageHolder: () -> ImageContent
     var content: () -> BottomContent
-    var toolbarItemsContent: ToolbarItemsContent
+    var toolbarItemsContent: () -> ToolbarItemsContent
     
     init(
         imgSize: CGFloat,
         @ViewBuilder imageHolder: @escaping () -> ImageContent,
         @ViewBuilder content: @escaping () -> BottomContent,
-        toolbarItemsContent: ToolbarItemsContent
+        toolbarItemsContent: @escaping () -> ToolbarItemsContent
     ) {
         self.imgSize = imgSize
         self.imageHolder = imageHolder
@@ -31,14 +31,24 @@ struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsCon
     var body: some View {
         GeometryReader { geometry in
             let offsetY = imgSize * 0.2
-            NavigationView{
+            VStack(spacing: 0) {
                 ZStack {
-                    VStack{
+                    toolbarItemsContent()
+                        .edgesIgnoringSafeArea(.all)
+                }
+                .frame(width: geometry.size.width)
+                .edgesIgnoringSafeArea(.all)
+                .background(Color.pokemonRed)
+                
+                ZStack {
+                    VStack(spacing: 0){
                         Color.pokemonRed
                             .ignoresSafeArea()
                             .frame(width: geometry.size.width, height: imgSize / 2 - offsetY, alignment: .leading)
                         VStack(content: content)
+                        Spacer()
                     }
+                    
                     GeometryReader { geo in
                         VStack{
                             HStack(alignment: .center) {
@@ -48,15 +58,13 @@ struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsCon
                             Spacer()
                         }
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .toolbar {
-                            toolbarItemsContent
-                        }
                     }
                 }
+                .padding(0)
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
+            .frame(width: geometry.size.width)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -82,21 +90,18 @@ struct ThemeAccountView_Previews: PreviewProvider {
                         }
                     }
                     .overlay(Rectangle().stroke(Color.red.opacity(0.5), lineWidth: 20))
+                    .padding(.top, 100)
                 },
-                toolbarItemsContent: MyToolBarContent()
-            )
-        }
-    }
-    
-    struct MyToolBarContent: ToolbarContent {
-        var body: some ToolbarContent {
-            ToolbarItem(placement: .principal, content: {
-                HStack {
-                    Text("Demo")
-                        .font(.largeTitle)
-                        .foregroundColor(.white)
+                toolbarItemsContent: {
+                    HStack {
+                        Text("Demo")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .padding(.top, geometry.size.height * 0.02)
+                    }
+                    .frame(height: geometry.size.height * 0.15, alignment: .top)
                 }
-            })
+            )
         }
     }
 }

@@ -67,21 +67,19 @@ struct LoginView: View {
                     .padding()
                     .keyboardAdaptive()
                 },
-                toolbarItemsContent: MyToolBarContent()
+                toolbarItemsContent: {
+                    VStack {
+                        WelcomeText()
+                            .padding(.top, geometry.size.height * 0.02)
+                    }
+                    .frame(height: geometry.size.height * 0.15, alignment: .top)
+                }
             )
         }
         .sheet(isPresented: $showSignup, content: {
             SignupView()
         })
         .environmentObject(userSession)
-    }
-    
-    struct MyToolBarContent: ToolbarContent {
-        var body: some ToolbarContent {
-            ToolbarItem(placement: .principal, content: {
-                WelcomeText()
-            })
-        }
     }
 }
 
