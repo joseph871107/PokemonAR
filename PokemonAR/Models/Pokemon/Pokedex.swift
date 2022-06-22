@@ -36,12 +36,11 @@ class Pokedex{
         
         func randomlyGenerate() -> Pokemon {
             let skillCount = Int.random(in: 1...4)
-            var skillsIndex: [Int] = Array(repeating: 0, count: skillCount)
-            skillsIndex = skillsIndex.map({ _ in Int.random(in: 0...(skills.count-1)) })
             
             return Pokemon(
                 pokedexId: id,
-                experience: Int.random(in: 0...1000), learned_skills: skillsIndex.map({ skills[$0] }))
+                experience: Int.random(in: 0...900),
+                learned_skills: skills[randomPick: skillCount])
         }
     }
     
