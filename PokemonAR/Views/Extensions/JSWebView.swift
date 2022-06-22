@@ -134,14 +134,14 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
         self.webView!.configuration.userContentController.addUserScript(script)
     }
     
-    @objc func sendJSON(jsonStr: String) {
-        self.webView?.evaluateJavaScript("receiver.sendJSON(\(jsonStr))", completionHandler: { (data, err) in
+    @objc func sendJSON(jsonStr: String, identifier: String) {
+        self.webView?.evaluateJavaScript("receiver.receiveJSON(\(jsonStr), '\( identifier )')", completionHandler: { (data, err) in
             print("\(String(describing: data)),\(String(describing: err))")
         })
     }
     
     @objc func sendObservableSync(jsonStr: String) {
-        self.webView?.evaluateJavaScript("receiver.sendObservableSync(\(jsonStr))", completionHandler: { (data, err) in
+        self.webView?.evaluateJavaScript("receiver.receiveObservableSync(\(jsonStr))", completionHandler: { (data, err) in
             print("\(String(describing: data)),\(String(describing: err))")
         })
     }
@@ -179,7 +179,7 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
             let url = Bundle.main.url(forResource: "processed_pokedex", withExtension: "json", subdirectory: "pokemon.json-master")!
             let text = try? String(contentsOf: url, encoding: .utf8)
             if let text = text {
-                self.sendJSON(jsonStr: text)
+                self.sendJSON(jsonStr: text, identifier: "pokedex")
             }
             
             self.syncBack()
