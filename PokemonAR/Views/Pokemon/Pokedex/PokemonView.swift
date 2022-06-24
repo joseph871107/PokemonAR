@@ -18,9 +18,6 @@ struct PokemonView: View {
     @State var scene: SCNScene?
     @State var animatedExperienceValue = CGFloat(0)
     
-    @State var editProcessGoing = false
-    @State var newName = ""
-    
     var sceneView: SceneView?
     
     var cameraNode: SCNNode? {
@@ -35,59 +32,7 @@ struct PokemonView: View {
                 VStack {
                     HStack(alignment: .top){
                         VStack {
-                            VStack {
-                                if pokemon.name.isEmpty {
-                                    Text("Pokémon name : \( pokemon.displayName )")
-                                        .font(.title3)
-                                        .fontWeight(.black)
-                                        .foregroundColor(.white)
-                                }
-                                HStack {
-                                    ZStack {
-                                        HStack {
-                                            if !pokemon.name.isEmpty {
-                                                Text("Name : ")
-                                                    .font(.title3)
-                                                    .fontWeight(.black)
-                                                    .foregroundColor(.white)
-                                            }
-                                            Text(pokemon.name)
-                                                .font(.title3)
-                                                .fontWeight(.black)
-                                                .foregroundColor(.white)
-                                                .lineLimit(3)
-                                            Image(systemName: "square.and.pencil")
-                                                .foregroundColor(Color.white)
-                                        }
-                                            .opacity(editProcessGoing ? 0 : 1)
-                                        
-                                        // TextField for edit mode of View
-                                        HStack {
-                                            Text("Name : ")
-                                                .font(.title3)
-                                                .fontWeight(.black)
-                                                .foregroundColor(.white)
-                                            TextField(
-                                                pokemon.displayName,
-                                                text: $newName,
-                                                onEditingChanged: { _ in },
-                                                onCommit: {
-                                                    if pokebag.pokemons.count > index {
-                                                        var mod_pokemon = pokebag.pokemons[index]
-                                                        mod_pokemon.displayName = newName
-                                                        pokebag.modifyPokemon(pokemon: mod_pokemon)
-                                                    }
-                                                    editProcessGoing = false
-                                                }
-                                            )
-                                            .background(Color.white)
-                                            .foregroundColor(.black)
-                                        }
-                                        .opacity(editProcessGoing ? 1 : 0)
-                                    }
-                                    .onTapGesture(perform: { editProcessGoing = true } )
-                                }
-                            }
+                            PokemonNameDisplayView(pokemon: pokemon)
                             
                             Divider()
                             
@@ -131,50 +76,7 @@ struct PokemonView: View {
                     }
                     .frame(maxHeight: geometry.size.height * 0.5)
                     
-                    HStack {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("Attack : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.Attack )")
-                            }
-                            HStack {
-                                Text("Defense : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.Defense )")
-                            }
-                            HStack {
-                                Text("HP : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.HP )")
-                            }
-                        }
-                        
-                        Divider()
-                        
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("Speed : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.Speed )")
-                            }
-                            HStack {
-                                Text("Special Attack : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.SpAttack )")
-                            }
-                            HStack {
-                                Text("Special Defense : ")
-                                Spacer()
-                                Text("\( pokemon.info.base.SpDefense )")
-                            }
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundColor(.white)
-                    .padding()
-                    .cornerRadius(10)
-                    .border(Color.white, width: 2)
+                    PokemonStatsView(pokemon: pokemon)
                     .frame(maxHeight: geometry.size.height * 0.15)
                     
                     Divider()
@@ -190,6 +92,7 @@ struct PokemonView: View {
             }
             .padding()
         }
+        .environmentObject(pokebag)
     }
     
     var pokemon: Pokemon {
@@ -204,6 +107,118 @@ struct PokemonView: View {
 struct PokemonView_Previews: PreviewProvider {
     static var previews: some View {
         getPokemonView()
+    }
+}
+struct PokemonNameDisplayView: View {
+    @EnvironmentObject var pokebag: PokeBagViewModel
+    
+    @State var pokemon: Pokemon
+    
+    @State var editProcessGoing = false
+    @State var newName = ""
+    
+    var body: some View {
+        VStack {
+            if pokemon.name.isEmpty {
+                Text("Pokémon name : \( pokemon.displayName )")
+                    .font(.title3)
+                    .fontWeight(.black)
+                    .foregroundColor(.white)
+            }
+            HStack {
+                ZStack {
+                    HStack {
+                        if !pokemon.name.isEmpty {
+                            Text("Name : ")
+                                .font(.title3)
+                                .fontWeight(.black)
+                                .foregroundColor(.white)
+                        }
+                        Text(pokemon.name)
+                            .font(.title3)
+                            .fontWeight(.black)
+                            .foregroundColor(.white)
+                            .lineLimit(3)
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(Color.white)
+                    }
+                        .opacity(editProcessGoing ? 0 : 1)
+                    
+                    // TextField for edit mode of View
+                    HStack {
+                        Text("Name : ")
+                            .font(.title3)
+                            .fontWeight(.black)
+                            .foregroundColor(.white)
+                        TextField(
+                            pokemon.displayName,
+                            text: $newName,
+                            onEditingChanged: { _ in },
+                            onCommit: {
+                                pokemon.displayName = newName
+                                pokebag.modifyPokemon(pokemon: pokemon)
+                                editProcessGoing = false
+                            }
+                        )
+                        .background(Color.white)
+                        .foregroundColor(.black)
+                    }
+                    .opacity(editProcessGoing ? 1 : 0)
+                }
+                .onTapGesture(perform: { editProcessGoing = true } )
+            }
+        }
+    }
+}
+
+struct PokemonStatsView: View {
+    @State var pokemon: Pokemon
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Attack : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.Attack )")
+                }
+                HStack {
+                    Text("Defense : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.Defense )")
+                }
+                HStack {
+                    Text("HP : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.HP )")
+                }
+            }
+            
+            Divider()
+            
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Speed : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.Speed )")
+                }
+                HStack {
+                    Text("Special Attack : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.SpAttack )")
+                }
+                HStack {
+                    Text("Special Defense : ")
+                    Spacer()
+                    Text("\( pokemon.info.base.SpDefense )")
+                }
+            }
+        }
+        .font(.caption)
+        .foregroundColor(.white)
+        .padding()
+        .cornerRadius(10)
+        .border(Color.white, width: 2)
     }
 }
 
