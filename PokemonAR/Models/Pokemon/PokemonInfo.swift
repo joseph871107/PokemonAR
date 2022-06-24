@@ -13,7 +13,13 @@ struct Pokemon: Codable, Identifiable, Equatable, Hashable {
     var createDate = Date()
     
     var pokedexId: Int
-    var experience = 0
+    var experience = 0 {
+        didSet {
+            if experience > 9999 {
+                experience = 9999
+            }
+        }
+    }
     var displayName: String = ""
     var learned_skills: [Pokedex.PokemonSkillReference] = []
     
@@ -68,6 +74,37 @@ struct Pokemon: Codable, Identifiable, Equatable, Hashable {
                 )
             )
         }
+    }
+    
+    func getEvolvedSelections() -> [Pokemon] {
+        var evolutionSelections = [Pokemon]()
+        
+        if self.level >= 50 {
+            for futureBranch in self.info.evolution.futureBranches {
+                if let evolved = self.getPokemonFromFutureBranch(futureBranch: futureBranch) {
+                    if let _ = evolved.info.modelUrl {
+                        evolutionSelections.append(evolved)
+                    }
+                }
+            }
+        }
+        
+        return evolutionSelections
+    }
+    
+    private func getPokemonFromFutureBranch(futureBranch: Pokedex.EvolutionReference.FutureBranch) -> Pokemon? {
+        if let _ = Pokedex.get(futureBranch.id) {
+            return Pokemon(
+                id: self.id,
+                createDate: Date(),
+                pokedexId: futureBranch.id,
+                experience: 0,
+                displayName: self.displayName,
+                learned_skills: self.learned_skills
+            )
+        }
+        
+        return nil
     }
     
     static func == (lhs: Pokemon, rhs: Pokemon) -> Bool {

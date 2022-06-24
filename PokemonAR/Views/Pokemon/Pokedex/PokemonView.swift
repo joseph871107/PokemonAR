@@ -65,13 +65,20 @@ struct PokemonView: View {
                         
                         Divider()
                         
-                        VStack {
-                            Text("Evolution")
-                                .font(.title3)
-                                .fontWeight(.black)
-                                .foregroundColor(.white)
-                            EvolutionView(pokemon: pokemon.info)
+                        GeometryReader { geo in
+                            VStack {
+                                Text("Evolution")
+                                    .font(.title3)
+                                    .fontWeight(.black)
+                                    .foregroundColor(.white)
+                                EvolutionView(pokemon: pokemon.info)
+                                
+                                Spacer()
+                                
+                                PokemonEvolutionButtonView(pokemon: pokemon)
+                            }
                         }
+                        .padding()
                         .frame(minWidth: geometry.size.width * 0.5)
                     }
                     .frame(maxHeight: geometry.size.height * 0.5)
@@ -109,6 +116,19 @@ struct PokemonView_Previews: PreviewProvider {
         getPokemonView()
     }
 }
+
+func getPokemonView() -> some View {
+    let pokebag = PokeBagViewModel()
+    var pokemon = Pokemon(pokedexId: 133)
+    pokemon.experience = 4950
+    pokebag.pokemons.append(pokemon)
+    
+    let pokemonView = PokemonView(index: .constant(0))
+        .environmentObject(pokebag)
+
+    return pokemonView
+}
+
 struct PokemonNameDisplayView: View {
     @EnvironmentObject var pokebag: PokeBagViewModel
     
@@ -222,16 +242,79 @@ struct PokemonStatsView: View {
     }
 }
 
-func getPokemonView() -> some View {
-    let pokebag = PokeBagViewModel()
-    var pokemon = Pokemon(pokedexId: 133)
-    pokemon.experience = 175
-    pokebag.pokemons.append(pokemon)
+struct PokemonEvolutionButtonView: View {
+    @EnvironmentObject var pokebag: PokeBagViewModel
     
-    let pokemonView = PokemonView(index: .constant(0))
-        .environmentObject(pokebag)
-
-    return pokemonView
+    @State var pokemon: Pokemon
+    @State var showEvolved = false
+    @State var showPopover = false
+    @State var message: String = ""
+    
+    @State var selectedEvolved: Pokemon?
+    
+    var body: some View {
+        let evolvedSelections = pokemon.getEvolvedSelections()
+        
+        GeometryReader { geometry in
+            VStack {
+                if evolvedSelections.count > 0 {
+                    Button(action: {
+                        if evolvedSelections.count > 1 {
+                            self.showPopover = true
+                        } else {
+                            let originalPokemon = pokemon
+                            let evolved = evolvedSelections.first!
+                            self.evolve(original: originalPokemon, evolved: evolved)
+                        }
+                    }, label: {
+                        Text("Evolve")
+                            .frame(width: geometry.size.width, height: 35)
+                            .turnIntoButtonStyle(.orange)
+                    })
+                    .popover(
+                        isPresented: self.$showPopover,
+                        arrowEdge: .bottom
+                    ) {
+                        VStack {
+                            Text("Select your evolved form.")
+                            ForEach(evolvedSelections, id: \.self.pokedexId) { evolved in
+                                Button(action: {
+                                    self.evolve(original: pokemon, evolved: evolved)
+                                }, label: {
+                                    HStack {
+                                        Image(uiImage: evolved.info.image)
+                                        Text(evolved.info.name.english)
+                                    }
+                                    .frame(width: geometry.size.width)
+                                    .turnIntoButtonStyle()
+                                })
+                                .padding()
+                            }
+                        }
+                    }
+                }
+            }
+            .alert(isPresented: $showEvolved, content: {
+                Alert(title: Text("Evolution"), message: Text(message))
+            })
+        }
+        .frame(height: 35)
+    }
+    
+    func evolve(original: Pokemon, evolved: Pokemon) {
+        message = "Congratulations! Your \( original.info.name.english ) evolved into \( evolved.info.name.english )"
+        pokebag.modifyPokemon(pokemon: evolved)
+        self.showAlert()
+    }
+    
+    func showAlert() -> Void {
+        DispatchQueue.main.async {
+            self.showPopover = false
+            DispatchQueue.main.async {
+                self.showEvolved = true
+            }
+        }
+    }
 }
 
 struct SceneKitView: UIViewRepresentable {
