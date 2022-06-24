@@ -15,7 +15,7 @@ import FirebaseFirestoreSwift
 
 class ObservableDecoder: ObservableObject {
     @Published var models = Dictionary<String, Any>()
-    @Published var observableViewModel = ObservableViewModel()
+    @Published var observableViewModel = BattleViewModel()
     var sub: AnyCancellable?
     
     init() {
@@ -53,19 +53,182 @@ class ObservableDecoder: ObservableObject {
     }
     
     func update(_ str: String) {
+        print("[ObservableDecoder] - updating for data : \( str )")
         let dObj = self.decodeAsDecodeObject(str)
         switch dObj.className {
         case .ObservableModel:
             let decoder = JSONDecoder()
             do {
-                let obj = try decoder.decode(ObservableModel.self, from: dObj.json)
+                var obj = try decoder.decode(BattleMainModel.self, from: dObj.json)
+                
+                obj = self.processCommands(obj)
+                if let receiveUserID = self.observableViewModel.data?.receiveUserID {
+                    print("[ObservableDecoder] - receiveUserID : \( receiveUserID )")
+                    if receiveUserID == "computer" {
+                        obj = self.computerProcessCommands(obj)
+                    }
+                }
+                
                 observableViewModel.data = obj
+                observableViewModel.saveUserModel()
             } catch {
                 fatalError(String(describing: error))
             }
         }
+    }
+    
+    func processCommands(_ obj: BattleMainModel) -> BattleMainModel {
+        var obj = obj
+        print(obj.battle.availableInfos.commands)
         
-        objectWillChange.send()
+        print("[ObservableDecoder] - processCommands - Start processing commands")
+        let side = (obj.startUserID == self.observableViewModel.userID)
+        
+        let commands = obj.battle.availableInfos.commands
+        print(commands)
+        
+        if commands.count > 0 {
+            let latestCommand = commands.last!
+            print(latestCommand)
+            
+            var myPokemon = obj.battle.myPokemon
+            var enemyPokemon = obj.battle.enemyPokemon
+            
+            if latestCommand.side {
+                myPokemon = obj.battle.myPokemon
+                enemyPokemon = obj.battle.enemyPokemon
+            } else {
+                myPokemon = obj.battle.enemyPokemon
+                enemyPokemon = obj.battle.myPokemon
+            }
+            
+            switch(latestCommand.type) {
+            case .requestSkill:
+                if latestCommand.side == side {
+                    let skillID = latestCommand.skill
+                    let skill = PokemonSkillSingleton.findSkill(skillID)
+                    
+                    obj.battle.availableInfos.commands.append(BattleInfoModel.Command(
+                        type: .confirmSkill,
+                        side: side,
+                        skill: skillID,
+                        damage: myPokemon.damage(skill: skill, on: enemyPokemon)
+                    ))
+                }
+                break
+            case .confirmSkill:
+                break
+            case .finished:
+                break
+            }
+        }
+        
+        obj = self.checkForFinish(obj)
+        
+        print(obj.battle.availableInfos.commands)
+        return obj
+    }
+    
+    func computerProcessCommands(_ obj: BattleMainModel) -> BattleMainModel {
+        var obj = obj
+        print(obj.battle.availableInfos.commands)
+        
+        print("[ObservableDecoder] - computerProcessCommands - Start processing commands")
+        
+        let commands = obj.battle.availableInfos.commands
+        print(commands)
+        
+        let myPokemon = obj.battle.myPokemon
+        let enemyPokemon = obj.battle.enemyPokemon
+        
+        if commands.count > 0 {
+            let latestCommand = commands.last!
+            print(latestCommand)
+            
+            switch(latestCommand.type) {
+            case .requestSkill:
+                break
+            case .confirmSkill:
+                if latestCommand.side == true {
+                    let skill = (enemyPokemon.learned_skills[randomPick: 1].first!).info
+                    let skillID = skill.id
+                    
+                    obj.battle.availableInfos.commands.append(BattleInfoModel.Command(
+                        type: .confirmSkill,
+                        side: false,
+                        skill: skillID,
+                        damage: enemyPokemon.damage(skill: skill, on: myPokemon)
+                    ))
+                }
+                break
+            case .finished:
+                break
+            }
+        }
+        
+        obj = self.checkForFinish(obj)
+        
+        print(obj.battle.availableInfos.commands)
+        return obj
+    }
+    
+    func checkForFinish(_ obj: BattleMainModel) -> BattleMainModel {
+        var obj = obj
+        print(obj.battle.availableInfos.commands)
+        
+        print("[ObservableDecoder - checkForFinish - Start processing commands")
+        
+        var isFinished = false
+        var myHP = obj.battle.availableInfos.myHealth
+        var enemyHP = obj.battle.availableInfos.enemyHealth
+        var winSide = true
+        
+        let commands = obj.battle.availableInfos.commands
+            
+        for command in commands {
+            switch(command.type) {
+            case .requestSkill:
+                break
+            case .confirmSkill:
+                let damage = command.damage
+                if command.side {
+                    enemyHP = enemyHP - damage
+                } else {
+                    myHP = myHP - damage
+                }
+                
+                break
+            case .finished:
+                return obj
+            }
+        }
+        
+        print("[ObservableDecoder - checkForFinish myHP : \( myHP )")
+        print("[ObservableDecoder - checkForFinish enemyHP : \( enemyHP )")
+        
+        if myHP <= 0 {
+            isFinished = true
+            winSide = false
+            print("[ObservableDecoder - enemy win")
+        }
+        
+        if enemyHP <= 0 {
+            isFinished = true
+            winSide = true
+            print("[ObservableDecoder - I win")
+        }
+        
+        if isFinished {
+            obj.battle.availableInfos.commands.append(BattleInfoModel.Command(
+                type: .finished,
+                side: winSide,
+                skill: 0,
+                damage: 0
+            ))
+        }
+        
+        print(obj.battle.availableInfos.commands)
+        return obj
     }
     
     func decodeAsDecodeObject(_ str: String) -> DecodeObject {
@@ -81,43 +244,75 @@ class ObservableDecoder: ObservableObject {
     }
 }
 
-class BattleModel {
-    struct Command: Codable {
+class BattleInfoModel {
+    enum CommandType: String, Codable {
+        case requestSkill
+        case confirmSkill
+        case finished
+    }
+    
+    struct Command: Codable, Hashable {
+        var type: CommandType
         var side: Bool
-        var move: String
-        var comment: String
+        var skill: Int
         var damage: Int
     }
 
-    struct AvailableInfos: Codable {
+    struct AvailableInfos: Codable, Hashable {
         var myHealth: Int = 100
         var enemyHealth: Int = 100
+        var currentMove: Int = 0
         var commands: [Command] = []
     }
 
-    struct CurrentBattle: Codable {
+    struct CurrentBattle: Codable, Hashable {
         var myPokemon: Pokemon = Pokemon(pokedexId: 1)
         var enemyPokemon: Pokemon = Pokemon(pokedexId: 1)
         var availableInfos: AvailableInfos = AvailableInfos()
+        
+        func summary(win: Bool, pokeBag: PokeBagViewModel) -> String {
+            var output = [String]()
+            
+            if let session = UserSessionModel.session {
+                let enemyLevel = self.enemyPokemon.level
+                var userReceiveExperience: Int = Int(ceil(Double(enemyLevel) * Double(0.75)))
+                var pokemonReceiveExperience: Int = Int(ceil(Double(enemyLevel) * Double(0.5)))
+                
+                session.userModel.data.experience += userReceiveExperience
+                if var pokemon = pokeBag.pokemons.first(where: { $0.id == self.myPokemon.id }) {
+                    pokemon.experience += pokemonReceiveExperience
+                    pokeBag.modifyPokemon(pokemon: pokemon)
+                }
+                
+                if !win {
+                    pokemonReceiveExperience = Int(Double(pokemonReceiveExperience) * Double(0.1))
+                    userReceiveExperience = Int(Double(userReceiveExperience) * Double(0.1))
+                }
+                
+                output.append("User experiences : +\( userReceiveExperience )")
+                output.append("Pokemon experiences : +\( pokemonReceiveExperience )")
+            }
+            
+            return output.joined(separator: "\n")
+        }
     }
 }
 
-struct ObservableModel: Codable {
-    var battle: BattleModel.CurrentBattle = BattleModel.CurrentBattle()
+struct BattleMainModel: Codable {
+    var battle: BattleInfoModel.CurrentBattle = BattleInfoModel.CurrentBattle()
     var roomID = UUID()
     var startUserID: String?
     var receiveUserID: String?
 }
 
-class ObservableViewModel: ObservableObject {
+class BattleViewModel: ObservableObject {
     private let store = Firestore.firestore()
     var dbName = "observableData"
     private var listener: ListenerRegistration?
-    private var userID = ""
+    @Published var userID = ""
     @Published var didSetFromListener = false
     
-    @Published var id = UUID()
-    @Published var data: ObservableModel? {
+    @Published var data: BattleMainModel? {
         didSet {
             if !didSetFromListener {
                 self.saveUserModel()
@@ -129,21 +324,33 @@ class ObservableViewModel: ObservableObject {
     }
     
     init() {
+        self.initialization()
+    }
+    
+    func initialization() {
+        print("[ObservableViewModel] - initialization")
         if let session = UserSessionModel.session {
-            if let _ = session.user {
-                self.updateUser(userID: session.user?.uid ?? "")
+            if let user = session.currentUser {
+                self.updateUser(userID: user.uid)
             }
         }
     }
     
     func updateUser(userID: String) {
-        self.userID = userID
-        self.data = ObservableModel()
+        self.stopListening()
         
-        self.deleteUserModel()
-        self.fetch()
+        self.userID = userID
+        self.getBattleQuery(onStarter: { querySnapshot in
+            for document in querySnapshot.documents {
+                document.reference.delete()
+            }
+        })
+        didSetFromListener = true
+        self.data = BattleMainModel()
+        didSetFromListener = false
+        
         self.data?.startUserID = userID
-        self.forceSaveUserModel()
+        print("[ObservableViewModel] - reset data")
         
         listenChange()
         print("[ObservableViewModel] - Start listening for \(userID) | \(dbName)")
@@ -151,15 +358,21 @@ class ObservableViewModel: ObservableObject {
     
     func updatePokemon(pokemon: Pokemon) {
         self.data?.battle.myPokemon = pokemon
-        self.forceSaveUserModel()
-        self.update()
+        self.data?.battle.availableInfos.myHealth = pokemon.info.base.HP
+        self.saveUserModel()
     }
     
-    func updateEnemyPokemon(userID: String? = nil, pokemon: Pokemon) {
+    func updateEnemyPokemon(userID: String? = nil, pokemon: Pokemon, computer: Bool = false) {
         self.data?.battle.enemyPokemon = pokemon
+        self.data?.battle.availableInfos.enemyHealth = pokemon.info.base.HP
         self.data?.receiveUserID = userID
-        self.forceSaveUserModel()
-        self.update()
+        
+        print(computer, pokemon)
+        if computer {
+            self.data?.receiveUserID = "computer"
+        }
+        
+        self.saveUserModel()
     }
     
     func update() {
@@ -175,6 +388,9 @@ class ObservableViewModel: ObservableObject {
         },
         onBoth: @escaping (QuerySnapshot) -> Void = { querySnapshot in
             
+        },
+        onNone: @escaping () -> Void = {
+            
         }
     ) {
         guard !userID.isEmpty else {
@@ -189,6 +405,7 @@ class ObservableViewModel: ObservableObject {
             if !querySnapshot.isEmpty {
                 onStarter(querySnapshot)
                 onBoth(querySnapshot)
+                return
             }
         }
         
@@ -200,8 +417,11 @@ class ObservableViewModel: ObservableObject {
             if !querySnapshot.isEmpty {
                 onReceiver(querySnapshot)
                 onBoth(querySnapshot)
+                return
             }
         }
+        
+        onNone()
     }
     
     func forceSaveUserModel() {
@@ -213,7 +433,7 @@ class ObservableViewModel: ObservableObject {
         }
         
         do {
-            try store.collection(dbName).document(id.uuidString).setData(from: self.data)
+            try store.collection(dbName).document(userID).setData(from: self.data)
             print("[ObservableViewModel] - forceSaveUserModel saved")
         } catch {
             print(error)
@@ -223,41 +443,40 @@ class ObservableViewModel: ObservableObject {
     func saveUserModel() {
         print("[ObservableViewModel] - saveUserModel")
         
-        if let data = self.data {
-            self.getBattleQuery(onBoth: { querySnapshot in
-                let snapshotRef = querySnapshot.documents.first
-                
-                if let snapshotRef = snapshotRef {
-                    do {
-                        try snapshotRef.reference.setData(from: data)
-                        print("[ObservableViewModel] - saveUserModel saved")
-                    } catch  {
-                        print(error)
+        if let myData = self.data {
+            self.getBattleQuery(
+                onBoth: { querySnapshot in
+                    let snapshotRef = querySnapshot.documents.first
+                    
+                    if let snapshotRef = snapshotRef {
+                        do {
+                            try snapshotRef.reference.setData(from: myData)
+                            print("[ObservableViewModel] - saveUserModel saved")
+                        } catch  {
+                            print(error)
+                        }
                     }
+                },
+                onNone: {
+                    self.forceSaveUserModel()
                 }
-            })
+            )
         }
     }
     
     func deleteUserModel() {
         print("[ObservableViewModel] - deleteUserModel")
         
+        self.stopListening()
         self.getBattleQuery(onBoth: { querySnapshot in
             for snapshotRef in querySnapshot.documents {
                 snapshotRef.reference.delete()
+                self.didSetFromListener = true
+                self.data = BattleMainModel()
+                self.data?.startUserID = self.userID
+                self.didSetFromListener = false
                 print("[ObservableViewModel] - deleteUserModel deleted")
             }
-        })
-    }
-    
-    func fetch() {
-        print("[ObservableViewModel] - fetch")
-        
-        self.getBattleQuery(onBoth: { querySnapshot in
-            let snapshotRef = querySnapshot.documents.first
-            
-            self.updateFromDocumentSnapshot(snapshotRef: snapshotRef)
-            print("[ObservableViewModel] - fetched")
         })
     }
     
@@ -265,10 +484,10 @@ class ObservableViewModel: ObservableObject {
         guard let snapshotRef = snapshotRef else { return }
         
         if snapshotRef.exists {
-            if let data = try? snapshotRef.data(as: ObservableModel.self) {
+            if let data = try? snapshotRef.data(as: BattleMainModel.self) {
+                self.didSetFromListener = true
                 self.data = data
                 self.update()
-                print(data)
             }
         }
     }

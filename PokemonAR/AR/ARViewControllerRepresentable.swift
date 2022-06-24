@@ -32,7 +32,7 @@ struct ARViewControllerRepresentable: UIViewControllerRepresentable {
         viewController.onPokemonEnter = { pokemon in
             onPokemonEnter(pokemon)
             enableBattleSheet = true
-            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemon.randomlyGenerate())
+            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemon.randomlyGenerate(), computer: true)
         }
         
         return viewController

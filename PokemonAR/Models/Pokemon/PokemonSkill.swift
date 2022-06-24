@@ -16,6 +16,7 @@ struct PokemonSkillInstance: Codable {
     let power: Int?
     let pp: Int?
     let type: String
+    let accuracy: Int?
     
     enum CodingKeys: String, CodingKey, CaseIterable {
         case id
@@ -23,6 +24,7 @@ struct PokemonSkillInstance: Codable {
         case power
         case pp
         case type
+        case accuracy
     }
 }
 

@@ -54,14 +54,12 @@ struct HomeView: View {
                             Divider()
                             LevelView()
                             Divider()
+                            DualTriggerView(showSheet: $enableBattleSheet)
+                            Divider()
+                            NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                         }
                         .padding(.top, imgSize * 0.5)
                         .padding(.horizontal)
-                        VStack{
-                            Divider()
-                            DualTriggerView(showSheet: $enableBattleSheet)
-                            NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
-                        }
                     }
                 },
                 toolbarItemsContent: {
@@ -157,12 +155,17 @@ struct LevelView : View {
 }
 
 struct DualTriggerView : View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @Binding var showSheet: Bool
     
     var height = CGFloat(100)
     
     var body: some View {
         Button(action: {
+            let pokemonInfo = Pokedex.pokedex.pokemons[randomPick: 1].first!
+            
+            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemonInfo.randomlyGenerate(), computer: true)
             showSheet = true
         }, label: {
             Text("Start dual with people")

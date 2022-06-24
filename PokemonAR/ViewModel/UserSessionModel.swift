@@ -48,6 +48,11 @@ class UserSessionModel: ObservableObject {
         self.updateUser()
     }
     
+    var currentUser: User? {
+        self.user = Auth.auth().currentUser
+        return self.user
+    }
+    
     func listenUsermodel() {
         subscriptions.append(userModel.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
@@ -344,6 +349,8 @@ class UserSessionModel: ObservableObject {
             self.isLogged = false
             print("[UserSessionModel.swift] - Unsuccessfully logged in")
         }
+        
+        UserSessionModel.session = self
     }
     
     func loginDemo(completion: @escaping (CompletionResult) -> Void = { result in

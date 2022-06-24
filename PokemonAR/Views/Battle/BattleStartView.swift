@@ -10,6 +10,14 @@ import Foundation
 
 import SwiftUI
 
+enum BattleAlert {
+    typealias RawValue = Hashable
+    
+    case onExit
+    case onFinished
+    case onCatch
+}
+
 struct BattleStartView: View {
     @EnvironmentObject var userSession: UserSessionModel
     @EnvironmentObject var pokebag: PokeBagViewModel
@@ -18,12 +26,43 @@ struct BattleStartView: View {
     @State var enemyPokemon: Pokemon?
     
     @State var startBattling = false
-    @State private var showingConfirmation = false
+    @State private var showingAlert = false
+    
+    @State var alertSelect: BattleAlert = .onExit
+    @State var alertMessage: AlertMessage = AlertMessage(title: "", message: "")
+    @State var showingCatchAlert = false
+    
+    struct AlertMessage {
+        var title: String
+        var message: String
+    }
     
     var body: some View {
         GeometryReader { geometry in
             if startBattling {
-                JSWebViewDemoView()
+                JSWebViewDemoView(onEnded: { catched in
+                    print("[BattleStartView] - on finished")
+                    let battleResult = userSession.battleObjectDecoder.observableViewModel.data!
+                    print(battleResult)
+                    
+                    let side = (battleResult.battle.availableInfos.commands.last)!.side
+                    
+                    if let userID = userSession.user?.uid {
+                        let actualSide = (userID == userSession.battleObjectDecoder.observableViewModel.data?.startUserID)
+                        let message = battleResult.battle.summary(win: side == actualSide, pokeBag: pokebag)
+                        print(message)
+                        
+                        alertMessage = AlertMessage(title: "Battle finished", message: message)
+                        
+                        if side == actualSide {
+                            if battleResult.receiveUserID == "computer" {
+                                self.showAlert(.onCatch)
+                                return
+                            }
+                        }
+                        self.showAlert(.onFinished)
+                    }
+                })
                     .environmentObject(userSession.battleObjectDecoder)
                 ZStack {
                     Color.pokemonRed.ignoresSafeArea()
@@ -32,7 +71,7 @@ struct BattleStartView: View {
                         .foregroundColor(.white)
                     HStack() {
                         Button(action: {
-                            showingConfirmation = true
+                            showingAlert = true
                         }, label: {
                             HStack {
                                 Image(systemName: "chevron.backward")
@@ -40,7 +79,7 @@ struct BattleStartView: View {
                             }
                             .foregroundColor(.white)
                         })
-                        .padding()
+                            .padding()
                         Spacer()
                     }
                 }
@@ -48,6 +87,13 @@ struct BattleStartView: View {
             } else {
                 ZStack {
                     PokemonSelectionView(callback: { pokemon in
+                        if let receiveUserID = userSession.battleObjectDecoder.observableViewModel.data?.receiveUserID {
+                            if receiveUserID == "computer" {
+                                let enemyPokemon = (userSession.battleObjectDecoder.observableViewModel.data)!.battle.enemyPokemon
+                                userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: enemyPokemon.info.randomlyGenerate(level: pokemon.level), computer: true)
+                            }
+                        }
+                        
                         onStart(pokemon: pokemon)
                     })
                     .environmentObject(pokebag)
@@ -56,16 +102,42 @@ struct BattleStartView: View {
         }
         .transition(.move(edge: .trailing))
         .animation(.easeInOut)
-        .alert(isPresented:$showingConfirmation) {
-            Alert(
-                title: Text("Are you sure you want to exit the battle?"),
-                message: Text("This will end the battle and you will not be able to go back here."),
-                primaryButton: .destructive(Text("Exit")) {
-                   onExit()
-                },
-                secondaryButton: .cancel()
-            )
-        }
+        .alert(isPresented:$showingAlert, content: {
+            switch(alertSelect) {
+            case .onExit:
+                return Alert(
+                    title: Text("Are you sure you want to exit the battle?"),
+                    message: Text("This will end the battle and you will not be able to go back here."),
+                    primaryButton: .destructive(Text("Exit")) {
+                       onExit()
+                    },
+                    secondaryButton: .cancel()
+                )
+            case .onFinished:
+                return Alert(
+                    title: Text(alertMessage.title),
+                    message: Text(alertMessage.message),
+                    dismissButton: .default(Text("Okay")) {
+                       onExit()
+                    }
+                )
+            case .onCatch:
+                return Alert(
+                    title: Text("You won the battle"),
+                    message: Text("Do you wish to catch it?"),
+                    primaryButton: .default(Text("Yes")) {
+                        if let data = UserSessionModel.session?.battleObjectDecoder.observableViewModel.data {
+                            pokebag.addPokemon(pokemon: data.battle.enemyPokemon)
+                            
+                            self.showAlert(.onFinished)
+                        }
+                    },
+                    secondaryButton: .cancel(Text("No"), action: {
+                        self.showAlert(.onFinished)
+                    })
+                )
+            }
+        })
     }
     
     func onStart(pokemon: Pokemon) {
@@ -77,6 +149,15 @@ struct BattleStartView: View {
         userSession.battleObjectDecoder.observableViewModel.deleteUserModel()
         startBattling = false
         showSheet = false
+    }
+    
+    func showAlert(_ active: BattleAlert) -> Void {
+        self.showingAlert = false
+        
+        DispatchQueue.main.async {
+            self.alertSelect = active
+            self.showingAlert = true
+        }
     }
 }
 

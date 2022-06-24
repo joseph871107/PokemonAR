@@ -36,7 +36,6 @@ struct ThemeAccountView<ImageContent: View, BottomContent: View, ToolbarItemsCon
                     toolbarItemsContent()
                         .edgesIgnoringSafeArea(.all)
                 }
-                .frame(minHeight: geometry.size.height * 0.15)
                 .frame(width: geometry.size.width)
                 .edgesIgnoringSafeArea(.all)
                 .background(Color.pokemonRed)

@@ -34,12 +34,21 @@ class Pokedex{
             }
         }
         
-        func randomlyGenerate() -> Pokemon {
-            let skillCount = Int.random(in: 1...4)
+        func randomlyGenerate(level: Int = 0) -> Pokemon {
+            var levelOffset: Int = Int(Double(ceil(Double(level + 1) / Double(10))) * Double(10))
+            
+            let mnExperience: Int = (levelOffset - 10) * 100
+            let mxExperience: Int = (levelOffset - 1) * 100
+            
+            var mxSkillCount = skills.count
+            if mxSkillCount > 4 {
+                mxSkillCount = 4
+            }
+            let skillCount = Int.random(in: 1...mxSkillCount)
             
             return Pokemon(
                 pokedexId: id,
-                experience: Int.random(in: 0...900),
+                experience: Int.random(in: mnExperience...mxExperience),
                 learned_skills: skills[randomPick: skillCount])
         }
     }

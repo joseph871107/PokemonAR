@@ -114,12 +114,10 @@ class SkillsManager{
 }
 
 class PokeBattle {
-  static pokemons = []
-  static skills = []
-
   pokedex = []
   myPokemon = null
   enemyPokemon = null
+  isFinished = false
 
   constructor(json, objRef) {
     this.pokedex = json
@@ -128,6 +126,9 @@ class PokeBattle {
   }
 
   update() {
+    this.myPokemon = null
+    this.enemyPokemon = null
+
     this.updateActions()
     this.getMyPokemon().update('myPokemon')
     this.getEnemyPokemon().update('enemyPokemon', true)
@@ -135,6 +136,7 @@ class PokeBattle {
   }
 
   process_json() {
+    PokeBattle.pokemons = [];
     this.pokedex.forEach((pokemonJson, i) => {
       PokeBattle.pokemons[i] = new PokemonRef(pokemonJson)
     })
@@ -180,7 +182,6 @@ class PokeBattle {
   message(message) {
     var wrapper = $('#message');
 
-    // var animClsName = "typewriter";
     var animClsName = "type";
     wrapper.removeClass(animClsName);
     wrapper.width();
@@ -244,18 +245,33 @@ class PokeBattle {
         target.remainedHp = willSet;
 
         if (i >= currentMove) {
-          target.beenAttacked(1000)
-          setTimeout(() => {
-            target.updateHP();
-          }, 500);
+          var isAttacking = true
+
+          if (action.power != null && action.power > 0 && command.damage <= 0) {
+            isAttacking = false
+          }
+
+          if (isAttacking) {
+            target.beenAttacked(1000)
+            setTimeout(() => {
+              target.updateHP();
+            }, 500);
+          } else {
+            message = `${ self.info().name() } have missed.`;
+          }
         } else {
           target.updateHP()
         }
 
         break
       case 'finished':
+        this.isFinished = true
         target.hasDied(1000);
         message = `${ self.info().name() } win!`;
+
+        setTimeout(() => {
+          this.onEnded();
+        }, 2500);
 
         break
     }
@@ -273,6 +289,10 @@ class PokeBattle {
     }
   }
 
+  onEnded() {
+    receiver.sendFinishBattle()
+  }
+
   actions() {
     return this.getMyPokemon().skills()
   }
@@ -281,7 +301,6 @@ class PokeBattle {
     var wrapper = $('.actions')[0]
     wrapper.innerHTML = '';
     var actions = this.actions()
-    console.log(actions)
 
     actions.forEach( (action, index) => {
       if (index < 4) {
@@ -314,23 +333,40 @@ class PokeBattle {
   }
 
   excuteAction(index) {
-    var actions = this.actions();
-    var action = actions[index];
-    console.log(`Excute action: ${action.ename}`);
+    if (this.isFinished) {
+      return
+    }
 
     var battle = this.battle();
-    battle.availableInfos.commands.push({
-      'type': 'requestSkill',
-      'side': true,
-      'skill': action,
-      "damage": 0,
-    });
-    battle.availableInfos.currentMove = battle.availableInfos.commands.length - 1;
-    receiver.sendObj(this.objRef);
+    var commands = battle.availableInfos.commands;
+    var addable = true;
+
+    console.log(`Excute action`);
+    if (commands.length > 0) {
+      if (commands[commands.length - 1].type == 'requestSkill') {
+        addable = false
+      }
+    }
+
+    if (addable) {
+      var actions = this.actions();
+      var action = actions[index];
+      console.log(`Excute action: ${action.ename}`);
+  
+      this.objRef.object.battle.availableInfos.commands.push({
+        'type': 'requestSkill',
+        'side': true,
+        'skill': action.id,
+        "damage": 0,
+      });
+      console.log(this.objRef.object.battle.availableInfos.commands[this.objRef.object.battle.availableInfos.commands.length-1])
+      this.objRef.object.battle.availableInfos.currentMove = this.objRef.object.battle.availableInfos.commands.length - 1;
+      console.log(this.objRef)
+      receiver.sendObj(this.objRef);
+    }
   }
 
   registerSkills(skills) {
-    PokeBattle.skills = skills;
     PokeBattle.skillsManager = new SkillsManager(skills);
   }
 }
@@ -341,6 +377,7 @@ class Receiver {
   obj = new ObservableObject('ObservableModel', (obj) => {
       this.sendObj(obj)
   })
+  isStarter = true;
 
   constructor() {
     this.detectInApp();
@@ -367,7 +404,7 @@ class Receiver {
             "roomID": "EE9E3838-DF42-4878-87C4-CA827D700B77",
             "battle": {
               "availableInfos": {
-                "currentMove": 0,
+                "currentMove": 4,
                 "enemyHealth": 100,
                 "commands": [
                   {
@@ -385,20 +422,26 @@ class Receiver {
                   {
                     "type": "confirmSkill",
                     "skill": 94,
-                    "damage": 50,
+                    "damage": 80,
                     "side": false
                   },
                   {
                     "type": "confirmSkill",
                     "skill": 94,
-                    "damage": 80,
+                    "damage": 0,
                     "side": true
                   },
                   {
-                    "type": "finished",
+                    "type": "confirmSkill",
                     "skill": 94,
+                    "damage": 80,
+                    "side": false
+                  },
+                  {
+                    "type": "finished",
+                    "skill": 0,
                     "damage": 0,
-                    "side": true
+                    "side": false
                   }
                 ],
                 "myHealth": 100
@@ -406,21 +449,21 @@ class Receiver {
               "enemyPokemon": {
                 "id": "6455F29C-F659-432E-9A52-A7359FA4CE84",
                 "createDate": 677578500.050489,
-                "pokedexId": 124,
+                "pokedexId": 151,
                 "displayName": "",
                 "experience": 633,
                 "learned_skills": [
                   {
-                    "id": 577
+                    "id": 94
                   },
                   {
-                    "id": 93
+                    "id": 85
                   },
                   {
-                    "id": 524
+                    "id": 58
                   },
                   {
-                    "id": 419
+                    "id": 411
                   }
                 ]
               },
@@ -442,22 +485,13 @@ class Receiver {
                   },
                   {
                     "id": 411
-                  },
-                  {
-                    "id": 53
-                  },
-                  {
-                    "id": 427
-                  },
-                  {
-                    "id": 93
                   }
                 ]
               }
             }
           }`
           var demoBattleJson = JSON.parse(demoBattleJsonStr);
-          this.receiveObservableSync(demoBattleJson);
+          this.receiveObservableSync(demoBattleJson, true);
 
           this.game.startGame()
         })
@@ -484,6 +518,7 @@ class Receiver {
     }
 
     readTextFile(file_name)
+    return true
   }
 
   receiveJSON(obj, identifier) {
@@ -513,9 +548,24 @@ class Receiver {
     }
   }
 
-  receiveObservableSync(obj) {
-    this.obj.object = obj
-    this.game.update()
+  sendFinishLoading() {
+    if (this.isInApp) {
+      window.webkit.messageHandlers.onFinishLoading.postMessage(true);
+    }
+  }
+
+  sendFinishBattle() {
+    if (this.isInApp) {
+      window.webkit.messageHandlers.onFinishBattle.postMessage(true);
+    }
+  }
+
+  receiveObservableSync(obj, isStarter) {
+    if (!(JSON.stringify(this.obj.object) === JSON.stringify(obj))) {
+      this.obj.object = obj
+      this.isStarter = isStarter
+      this.game.update()
+    }
   }
 }
 
@@ -538,6 +588,8 @@ window.onresize = () => {
 
 var receiver = new Receiver();
 window.onload = () => {
+  console.log("Finished loading page")
+  receiver.sendFinishLoading()
   window.onresize()
   
   if (!receiver.isInApp) {
