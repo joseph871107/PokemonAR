@@ -12,15 +12,13 @@ struct MainTabView: View {
     @EnvironmentObject var userSession: UserSessionModel
     @StateObject var pokebag = PokeBagViewModel()
     
-    @State var enableBattleSheet = false
-    
     var body: some View {
         ZStack {
-            if enableBattleSheet {
-                BattleStartView(showSheet: $enableBattleSheet)
+            if userSession.enableBattleSheet {
+                BattleStartView()
             } else {
                 TabView(selection: $userSession.tabSelection) {
-                    HomeView(enableBattleSheet: $enableBattleSheet)
+                    HomeView()
                         .tabItem {
                             Label("Home", systemImage: "house")
                         }
@@ -30,7 +28,7 @@ struct MainTabView: View {
                             Label("Pokedex", systemImage: "square.grid.3x3.fill")
                         }
                         .tag(2)
-                    ARViewControllerRepresentable(enableBattleSheet: $enableBattleSheet)
+                    ARViewControllerRepresentable()
                         .environmentObject(userSession)
                         .tabItem {
                             Label("Catch", systemImage: "lasso")

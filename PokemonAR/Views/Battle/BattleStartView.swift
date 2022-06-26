@@ -22,7 +22,6 @@ struct BattleStartView: View {
     @EnvironmentObject var userSession: UserSessionModel
     @EnvironmentObject var pokebag: PokeBagViewModel
     
-    @Binding var showSheet: Bool
     @State var enemyPokemon: Pokemon?
     
     @State var startBattling = false
@@ -148,7 +147,7 @@ struct BattleStartView: View {
     func onExit() {
         userSession.battleObjectDecoder.observableViewModel.deleteUserModel()
         startBattling = false
-        showSheet = false
+        userSession.enableBattleSheet = false
     }
     
     func showAlert(_ active: BattleAlert) -> Void {
@@ -192,7 +191,7 @@ struct Previews_BattleStartView_Previews: PreviewProvider {
 func getBattleStartView() -> some View {
     let userSession = UserSessionModel()
     let pokebag = PokeBagViewModel()
-    let battleStartView = BattleStartView(showSheet: .constant(true))
+    let battleStartView = BattleStartView()
         .environmentObject(userSession)
         .environmentObject(pokebag)
     userSession.loginDemo(completion: { result in

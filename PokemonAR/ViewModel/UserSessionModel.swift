@@ -30,6 +30,8 @@ class UserSessionModel: ObservableObject {
     
     @Published var tabSelection = 1
     
+    @Published var enableBattleSheet = false
+    
     var userName: String {
         if let user = user {
             if let name = user.displayName {

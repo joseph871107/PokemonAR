@@ -20,8 +20,6 @@ struct ARViewControllerRepresentable: UIViewControllerRepresentable {
     
     @State var viewController: ARViewController?
     
-    @Binding var enableBattleSheet: Bool
-    
     @State var onPokemonEnter: (Pokedex.PokemonInfo) -> Void = { pokemon in
         
     }
@@ -31,7 +29,7 @@ struct ARViewControllerRepresentable: UIViewControllerRepresentable {
         self.viewController = viewController
         viewController.onPokemonEnter = { pokemon in
             onPokemonEnter(pokemon)
-            enableBattleSheet = true
+            userSession.enableBattleSheet = true
             userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemon.randomlyGenerate(), computer: true)
         }
         

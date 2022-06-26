@@ -15,8 +15,6 @@ struct HomeView: View {
     @State var isShowing: Bool = false
     @State var sheetSelect: HomeSheet = .whats_new
     
-    @Binding var enableBattleSheet: Bool
-    
     var body: some View {
         GeometryReader { geometry in
             let imgSize = CGFloat(geometry.size.width * 0.5)
@@ -54,7 +52,7 @@ struct HomeView: View {
                             Divider()
                             LevelView()
                             Divider()
-                            DualTriggerView(showSheet: $enableBattleSheet)
+                            DualTriggerView(showSheet: $userSession.enableBattleSheet)
                             Divider()
                             NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                         }
@@ -132,7 +130,7 @@ struct HomeView_Previews: PreviewProvider {
 func getHomeView() -> some View {
     let userSession = UserSessionModel()
     let pokebag = PokeBagViewModel()
-    let homeView = HomeView(enableBattleSheet: .constant(false))
+    let homeView = HomeView()
         .environmentObject(userSession)
         .environmentObject(pokebag)
     userSession.loginDemo(completion: { result in
@@ -157,8 +155,6 @@ struct LevelView : View {
 struct DualTriggerView : View {
     @EnvironmentObject var userSession: UserSessionModel
     
-    @Binding var showSheet: Bool
-    
     var height = CGFloat(100)
     
     var body: some View {
@@ -166,7 +162,7 @@ struct DualTriggerView : View {
             let pokemonInfo = Pokedex.pokedex.pokemons[randomPick: 1].first!
             
             userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemonInfo.randomlyGenerate(), computer: true)
-            showSheet = true
+            userSession.enableBattleSheet = true
         }, label: {
             Text("Start dual with people")
                 .padding(.horizontal, 50.0)
