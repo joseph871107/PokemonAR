@@ -118,6 +118,7 @@ class PokeBattle {
   myPokemon = null
   enemyPokemon = null
   isFinished = false
+  isStarter = true;
 
   constructor(json, objRef) {
     this.pokedex = json
@@ -130,8 +131,13 @@ class PokeBattle {
     this.enemyPokemon = null
 
     this.updateActions()
-    this.getMyPokemon().update('myPokemon')
-    this.getEnemyPokemon().update('enemyPokemon', true)
+    if (this.isStarter) {
+      this.getMyPokemon().update('myPokemon')
+      this.getEnemyPokemon().update('enemyPokemon', true)
+    } else {
+      this.getMyPokemon().update('enemyPokemon', true)
+      this.getEnemyPokemon().update('myPokemon')
+    }
     this.updateMessage()
   }
 
@@ -294,7 +300,11 @@ class PokeBattle {
   }
 
   actions() {
-    return this.getMyPokemon().skills()
+    if (this.isStarter) {
+      return this.getMyPokemon().skills()
+    } else {
+      return this.getEnemyPokemon().skills()
+    }
   }
 
   updateActions() {
@@ -346,6 +356,13 @@ class PokeBattle {
       if (commands[commands.length - 1].type == 'requestSkill') {
         addable = false
       }
+
+      if (
+        commands[commands.length - 1].type == 'confirmSkill' &&
+        commands[commands.length - 1].side == this.isStarter
+      ) {
+        addable = false
+      }
     }
 
     if (addable) {
@@ -355,7 +372,7 @@ class PokeBattle {
   
       this.objRef.object.battle.availableInfos.commands.push({
         'type': 'requestSkill',
-        'side': true,
+        'side': this.isStarter,
         'skill': action.id,
         "damage": 0,
       });
@@ -377,7 +394,6 @@ class Receiver {
   obj = new ObservableObject('ObservableModel', (obj) => {
       this.sendObj(obj)
   })
-  isStarter = true;
 
   constructor() {
     this.detectInApp();
@@ -563,7 +579,7 @@ class Receiver {
   receiveObservableSync(obj, isStarter) {
     if (!(JSON.stringify(this.obj.object) === JSON.stringify(obj))) {
       this.obj.object = obj
-      this.isStarter = isStarter
+      this.game.isStarter = isStarter
       this.game.update()
     }
   }

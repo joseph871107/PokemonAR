@@ -54,6 +54,8 @@
 		701CA85A28619B8600B3C9FA /* PokemonInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701CA85928619B8500B3C9FA /* PokemonInfo.swift */; };
 		701CA85C2861B60400B3C9FA /* PokedexHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701CA85B2861B60300B3C9FA /* PokedexHomeView.swift */; };
 		701CA85F2861BD6C00B3C9FA /* BattleStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701CA85E2861BD6C00B3C9FA /* BattleStartView.swift */; };
+		7041B6E328681D26004B1B9B /* DualHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7041B6E228681D26004B1B9B /* DualHomeView.swift */; };
+		7041B6E5286848B7004B1B9B /* DualRoomSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7041B6E4286848B7004B1B9B /* DualRoomSelectionView.swift */; };
 		708418DF285B172B00A18B57 /* PokemonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708418DE285B172B00A18B57 /* PokemonType.swift */; };
 		708418E1285B85F700A18B57 /* ToolbarTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708418E0285B85F700A18B57 /* ToolbarTheme.swift */; };
 		70886B76285CB505009CF3BC /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 70886B75285CB505009CF3BC /* FirebaseDatabase */; };
@@ -142,6 +144,8 @@
 		701CA85928619B8500B3C9FA /* PokemonInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonInfo.swift; sourceTree = "<group>"; };
 		701CA85B2861B60300B3C9FA /* PokedexHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokedexHomeView.swift; sourceTree = "<group>"; };
 		701CA85E2861BD6C00B3C9FA /* BattleStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleStartView.swift; sourceTree = "<group>"; };
+		7041B6E228681D26004B1B9B /* DualHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualHomeView.swift; sourceTree = "<group>"; };
+		7041B6E4286848B7004B1B9B /* DualRoomSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualRoomSelectionView.swift; sourceTree = "<group>"; };
 		708418DE285B172B00A18B57 /* PokemonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonType.swift; sourceTree = "<group>"; };
 		708418E0285B85F700A18B57 /* ToolbarTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTheme.swift; sourceTree = "<group>"; };
 		70886B7E285CD890009CF3BC /* ARMain.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ARMain.storyboard; sourceTree = "<group>"; };
@@ -287,6 +291,7 @@
 		7018BE3D2856574B00311E26 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				7041B6E128681D07004B1B9B /* Dual */,
 				708C9A0D2858AD3100FAD13B /* Extensions */,
 				701CA85D2861BD4F00B3C9FA /* Battle */,
 				7018BEC52857A04A00311E26 /* Account */,
@@ -364,6 +369,15 @@
 				701CA85E2861BD6C00B3C9FA /* BattleStartView.swift */,
 			);
 			path = Battle;
+			sourceTree = "<group>";
+		};
+		7041B6E128681D07004B1B9B /* Dual */ = {
+			isa = PBXGroup;
+			children = (
+				7041B6E228681D26004B1B9B /* DualHomeView.swift */,
+				7041B6E4286848B7004B1B9B /* DualRoomSelectionView.swift */,
+			);
+			path = Dual;
 			sourceTree = "<group>";
 		};
 		708418DD285B171300A18B57 /* Pokemon */ = {
@@ -628,6 +642,7 @@
 				7018BE5D28565C4C00311E26 /* PokemonView.swift in Sources */,
 				708C9A252858D56300FAD13B /* AsyncImage.swift in Sources */,
 				701CA8582860B5FE00B3C9FA /* PokemonSkill.swift in Sources */,
+				7041B6E5286848B7004B1B9B /* DualRoomSelectionView.swift in Sources */,
 				7018BE392856569200311E26 /* UIColorExtension.swift in Sources */,
 				708418DF285B172B00A18B57 /* PokemonType.swift in Sources */,
 				7018BE1D285655F600311E26 /* OverlayView.swift in Sources */,
@@ -644,6 +659,7 @@
 				7018BE4E2856585F00311E26 /* Pokedex.swift in Sources */,
 				7018BE472856576100311E26 /* LoginView.swift in Sources */,
 				7018BE292856561100311E26 /* ViewControllerRepresentable.swift in Sources */,
+				7041B6E328681D26004B1B9B /* DualHomeView.swift in Sources */,
 				7018BE442856576100311E26 /* AccountSettingView.swift in Sources */,
 				7018BE1C285655F600311E26 /* OverlayViewRepresentable.swift in Sources */,
 				708C9A2D2859463A00FAD13B /* TextAlert.swift in Sources */,

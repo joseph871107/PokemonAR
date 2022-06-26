@@ -140,7 +140,11 @@ struct BattleStartView: View {
     }
     
     func onStart(pokemon: Pokemon) {
-        userSession.battleObjectDecoder.observableViewModel.updatePokemon(pokemon: pokemon)
+        if userSession.battleObjectDecoder.isStarter {
+            userSession.battleObjectDecoder.observableViewModel.updatePokemon(pokemon: pokemon)
+        } else {
+            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemon)
+        }
         startBattling = true
     }
     

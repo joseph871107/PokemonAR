@@ -52,7 +52,8 @@ struct HomeView: View {
                             Divider()
                             LevelView()
                             Divider()
-                            DualTriggerView(showSheet: $userSession.enableBattleSheet)
+                            DualTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
+                            
                             Divider()
                             NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                         }
@@ -103,6 +104,7 @@ struct HomeView: View {
 enum HomeSheet {
     case settins
     case whats_new
+    case dual_home
 }
 
 struct HomeSheetSelectView: View {
@@ -116,6 +118,8 @@ struct HomeSheetSelectView: View {
                 AccountSettingView(showSettings: $isShowing)
             case .whats_new:
                 WebView(url: URL(string: "https://github.com/joseph871107/PokemonAR"))
+            case .dual_home:
+                DualHomeView()
             }
         }
     }
@@ -157,12 +161,13 @@ struct DualTriggerView : View {
     
     var height = CGFloat(100)
     
+    @Binding var showSheet: Bool
+    @Binding var sheetSelect: HomeSheet
+    
     var body: some View {
         Button(action: {
-            let pokemonInfo = Pokedex.pokedex.pokemons[randomPick: 1].first!
-            
-            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemonInfo.randomlyGenerate(), computer: true)
-            userSession.enableBattleSheet = true
+            sheetSelect = .dual_home
+            showSheet = true
         }, label: {
             Text("Start dual with people")
                 .padding(.horizontal, 50.0)

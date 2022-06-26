@@ -12,11 +12,15 @@ import Combine
 
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import FirebaseAuth
 
 class ObservableDecoder: ObservableObject {
-    @Published var models = Dictionary<String, Any>()
     @Published var observableViewModel = BattleViewModel()
     var sub: AnyCancellable?
+    
+    var isStarter: Bool {
+        return self.observableViewModel.isStarter
+    }
     
     init() {
         sub = observableViewModel.objectWillChange.sink { [self] _ in
@@ -82,7 +86,6 @@ class ObservableDecoder: ObservableObject {
         print(obj.battle.availableInfos.commands)
         
         print("[ObservableDecoder] - processCommands - Start processing commands")
-        let side = (obj.startUserID == self.observableViewModel.userID)
         
         let commands = obj.battle.availableInfos.commands
         print(commands)
@@ -94,7 +97,7 @@ class ObservableDecoder: ObservableObject {
             var myPokemon = obj.battle.myPokemon
             var enemyPokemon = obj.battle.enemyPokemon
             
-            if latestCommand.side {
+            if latestCommand.side == isStarter {
                 myPokemon = obj.battle.myPokemon
                 enemyPokemon = obj.battle.enemyPokemon
             } else {
@@ -104,13 +107,13 @@ class ObservableDecoder: ObservableObject {
             
             switch(latestCommand.type) {
             case .requestSkill:
-                if latestCommand.side == side {
+                if latestCommand.side == isStarter {
                     let skillID = latestCommand.skill
                     let skill = PokemonSkillSingleton.findSkill(skillID)
                     
                     obj.battle.availableInfos.commands.append(BattleInfoModel.Command(
                         type: .confirmSkill,
-                        side: side,
+                        side: isStarter,
                         skill: skillID,
                         damage: myPokemon.damage(skill: skill, on: enemyPokemon)
                     ))
@@ -303,12 +306,30 @@ struct BattleMainModel: Codable {
     var roomID = UUID()
     var startUserID: String?
     var receiveUserID: String?
+    var createTime: Date?
+    
+    var battleExpired: Bool {
+        if let createTime = self.createTime {
+            let expiredTime = createTime.addingTimeInterval(5 * 60)
+            return Date() > expiredTime
+        }
+        
+        return true
+    }
+}
+
+struct OpponentInfo: Identifiable {
+    let id: UUID
+    let userID: String
+    let pokemon: Pokemon
 }
 
 class BattleViewModel: ObservableObject {
     private let store = Firestore.firestore()
     var dbName = "observableData"
     private var listener: ListenerRegistration?
+    private var roomListener: ListenerRegistration?
+    @Published var id = ""
     @Published var userID = ""
     @Published var didSetFromListener = false
     
@@ -321,6 +342,16 @@ class BattleViewModel: ObservableObject {
                 didSetFromListener = false
             }
         }
+    }
+    
+    @Published var availableRooms: [OpponentInfo] = []
+    
+    var isStarter: Bool {
+        if let startUserID = self.data?.startUserID {
+            return startUserID == self.userID
+        }
+        
+        return true
     }
     
     init() {
@@ -339,6 +370,7 @@ class BattleViewModel: ObservableObject {
     func updateUser(userID: String) {
         self.stopListening()
         
+        self.id = userID
         self.userID = userID
         self.getBattleQuery(onStarter: { querySnapshot in
             for document in querySnapshot.documents {
@@ -433,7 +465,7 @@ class BattleViewModel: ObservableObject {
         }
         
         do {
-            try store.collection(dbName).document(userID).setData(from: self.data)
+            try store.collection(dbName).document(self.id).setData(from: self.data)
             print("[ObservableViewModel] - forceSaveUserModel saved")
         } catch {
             print(error)
@@ -464,7 +496,9 @@ class BattleViewModel: ObservableObject {
         }
     }
     
-    func deleteUserModel() {
+    func deleteUserModel(_ callback: @escaping () -> Void = {
+        
+    }) {
         print("[ObservableViewModel] - deleteUserModel")
         
         self.stopListening()
@@ -476,8 +510,12 @@ class BattleViewModel: ObservableObject {
                 self.data?.startUserID = self.userID
                 self.didSetFromListener = false
                 print("[ObservableViewModel] - deleteUserModel deleted")
+                callback()
+                return
             }
         })
+        
+        callback()
     }
     
     func updateFromDocumentSnapshot(snapshotRef: DocumentSnapshot?) {
@@ -486,8 +524,49 @@ class BattleViewModel: ObservableObject {
         if snapshotRef.exists {
             if let data = try? snapshotRef.data(as: BattleMainModel.self) {
                 self.didSetFromListener = true
+                self.id = data.startUserID ?? ""
                 self.data = data
                 self.update()
+            }
+        }
+    }
+    
+    func startRoom() {
+        self.data = BattleMainModel(startUserID: self.userID)
+        self.data?.createTime = Date()
+        self.saveUserModel()
+    }
+    
+    func enterRoom(roomID: UUID) {
+        store.collection(dbName).whereField("roomID", isEqualTo: roomID.uuidString).getDocuments { (querySnapshot, error) in
+            guard let querySnapshot = querySnapshot else {
+                return
+            }
+            
+            if !querySnapshot.isEmpty {
+                if let snapshotRef = querySnapshot.documents.first {
+                    if var data = try? snapshotRef.data(as: BattleMainModel.self) {
+                        let ref = snapshotRef.reference
+                        if let session = UserSessionModel.session {
+                            self.deleteUserModel({
+                                let childUpdates = ["receiveUserID": session.user?.uid]
+                                
+                                ref.updateData(childUpdates) { error in
+                                    print(String(describing: error))
+                                }
+                                
+                                data.receiveUserID = session.user?.uid
+                                
+                                self.stopListening()
+                                self.id = data.startUserID ?? ""
+                                self.listenChange()
+                                
+                                self.data = data
+                                self.update()
+                            })
+                        }
+                    }
+                }
             }
         }
     }
@@ -496,15 +575,87 @@ class BattleViewModel: ObservableObject {
         print("[ObservableViewModel] - [listenChange] - Start listening changes")
         
         if !userID.isEmpty{
-            self.listener = store.collection(dbName).document(userID).addSnapshotListener(includeMetadataChanges: true) { [self] snapshot, error in
+            self.listener = store.collection(dbName).document(self.id).addSnapshotListener(includeMetadataChanges: true) { [self] snapshot, error in
                 self.didSetFromListener = true
                 self.updateFromDocumentSnapshot(snapshotRef: snapshot)
             }
         }
     }
     
+    func listenRoomInfos() {
+        print("[ObservableViewModel] - [listenRoomInfos] - Start listening rooms")
+        
+        self.roomListener = store.collection(dbName).addSnapshotListener { snapshot, error in
+            guard let snapshot = snapshot else { return }
+            
+            
+            print("[ObservableViewModel] - listenRoomInfos - start pickingup rooms for number of rooms : \( snapshot.documentChanges.count )")
+            for documentChange in snapshot.documentChanges {
+                guard let targetBattle = try? documentChange.document.data(as: BattleMainModel.self) else {
+                    continue
+                }
+                
+                if let _ = targetBattle.receiveUserID {
+                    continue
+                }
+                
+                guard let startUserID = targetBattle.startUserID, startUserID != self.userID else {
+                    continue
+                }
+                
+                guard !targetBattle.battleExpired else {
+                    continue
+                }
+                
+                switch documentChange.type {
+                case .added:
+                    let index = self.availableRooms.firstIndex { room in
+                        room.id == targetBattle.roomID
+                    }
+                    if let _ = index {
+                        
+                    } else {
+                        self.availableRooms.append(self.getOpponentInfoFromBattle(targetBattle))
+                    }
+                case .modified:
+                    let index = self.availableRooms.firstIndex { room in
+                        room.id == targetBattle.roomID
+                    }
+                    if let index = index {
+                        self.availableRooms[index] = self.getOpponentInfoFromBattle(targetBattle)
+                    }
+                case .removed:
+                    let index = self.availableRooms.firstIndex { room in
+                        room.id == targetBattle.roomID
+                    }
+                    if let index = index {
+                        self.availableRooms.remove(at: index)
+                    }
+                }
+            }
+            self.update()
+        }
+        
+        if !userID.isEmpty{
+            self.listener = store.collection(dbName).document(userID).addSnapshotListener(includeMetadataChanges: true) { [self] snapshot, error in
+                self.didSetFromListener = true
+                self.updateFromDocumentSnapshot(snapshotRef: snapshot)
+            }
+        }
+    }
+                
+    private func getOpponentInfoFromBattle(_ room: BattleMainModel) -> OpponentInfo {
+        return OpponentInfo(id: room.roomID, userID: room.startUserID ?? "", pokemon: room.battle.myPokemon)
+    }
+    
     func stopListening() {
         self.listener?.remove()
         self.listener = nil
+    }
+    
+    func stopListeningRoomInfos() {
+        self.roomListener?.remove()
+        self.roomListener = nil
+        self.availableRooms.removeAll()
     }
 }
