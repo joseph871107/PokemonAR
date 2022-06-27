@@ -70,9 +70,9 @@ struct LoginView: View {
                 toolbarItemsContent: {
                     VStack {
                         WelcomeText()
-                            .padding(.top, geometry.size.height * 0.02)
+                            .padding(.top, geometry.size.height * 0.07)
                     }
-                    .frame(height: geometry.size.height * 0.15, alignment: .top)
+                    .frame(height: geometry.size.height * 0.2, alignment: .top)
                 }
             )
         }

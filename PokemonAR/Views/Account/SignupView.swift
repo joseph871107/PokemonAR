@@ -60,9 +60,9 @@ struct SignupView: View {
                         Text("Become a Pokémon Master!")
                             .font(.title)
                             .foregroundColor(.white)
-                            .padding(.top, geometry.size.height * 0.02)
+                            .padding(.top, geometry.size.height * 0.05)
                     }
-                    .frame(height: geometry.size.height * 0.15, alignment: .top)
+                    .frame(height: geometry.size.height * 0.2, alignment: .top)
                 }
             )
         }

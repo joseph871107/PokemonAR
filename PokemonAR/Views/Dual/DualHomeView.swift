@@ -19,49 +19,59 @@ struct DualHomeView: View {
     @State var lastBattle: BattleMainModel = BattleMainModel()
     @State var battleEntered: Bool = false
     
+    @State var roomStarted: Bool = false
+    
     var body: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .center) {
-                Button(action: {
-                    userSession.battleObjectDecoder.observableViewModel.startRoom()
-                }, label: {
-                    Text("Start a Room")
-                        .frame(width: geometry.size.width * 0.5, height: 50)
-                        .turnIntoButtonStyle(Color.pokemonRed)
-                })
-                LabelledDivider(label: "or")
-                DualRoomSelectionView()
+        if !roomStarted {
+            GeometryReader { geometry in
+                VStack(alignment: .center) {
+                    Button(action: {
+                        roomStarted = true
+                        userSession.battleObjectDecoder.observableViewModel.startRoom()
+                    }, label: {
+                        Text("Start a Room")
+                            .frame(width: geometry.size.width * 0.5, height: 50)
+                            .turnIntoButtonStyle(Color.pokemonRed)
+                    })
+                    LabelledDivider(label: "or")
+                    DualRoomSelectionView()
+                }
+                .padding()
+                .environmentObject(userSession)
+                .environmentObject(pokebag)
             }
-            .padding()
-            .environmentObject(userSession)
-            .environmentObject(pokebag)
-        }
-        .onAppear(perform: {
-            self.lastBattle = userSession.battleObjectDecoder.observableViewModel.data ?? lastBattle
-            
-            self.sub = userSession.battleObjectDecoder.observableViewModel.objectWillChange.sink { _ in
-                if let newBattle = userSession.battleObjectDecoder.observableViewModel.data {
-                    print("lastBattle \( lastBattle )")
-                    print("newBattle \( newBattle )")
-                    
-                    if self.battleEntered == false && (
-                        lastBattle.startUserID != newBattle.startUserID ||
-                        lastBattle.receiveUserID != newBattle.startUserID ||
-                        lastBattle.roomID != newBattle.roomID ||
-                        lastBattle.createTime != newBattle.createTime
-                    ) && (
-                        !(newBattle.startUserID ?? "").isEmpty &&
-                        !(newBattle.receiveUserID ?? "").isEmpty &&
-                        newBattle.createTime != nil
-                    ){
-                        DispatchQueue.main.async {
-                            self.battleEntered = true
-                            userSession.enableBattleSheet = true
+            .onAppear(perform: {
+                self.lastBattle = userSession.battleObjectDecoder.observableViewModel.data ?? lastBattle
+                
+                self.sub = userSession.battleObjectDecoder.observableViewModel.objectWillChange.sink { _ in
+                    if let newBattle = userSession.battleObjectDecoder.observableViewModel.data {
+                        print("lastBattle \( lastBattle )")
+                        print("newBattle \( newBattle )")
+                        
+                        if self.battleEntered == false && (
+                            lastBattle.startUserID != newBattle.startUserID ||
+                            lastBattle.receiveUserID != newBattle.startUserID ||
+                            lastBattle.roomID != newBattle.roomID ||
+                            lastBattle.createTime != newBattle.createTime
+                        ) && (
+                            !(newBattle.startUserID ?? "").isEmpty &&
+                            !(newBattle.receiveUserID ?? "").isEmpty &&
+                            newBattle.createTime != nil
+                        ){
+                            DispatchQueue.main.async {
+                                self.battleEntered = true
+                                userSession.enableBattleSheet = true
+                            }
                         }
                     }
                 }
+            })
+        } else {
+            VStack(alignment: .center) {
+                ProgressView()
+                Text("Waiting ...")
             }
-        })
+        }
     }
 }
 

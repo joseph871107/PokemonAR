@@ -57,7 +57,7 @@ struct HomeView: View {
                             Divider()
                             NewsTriggerView(showSheet: $isShowing, sheetSelect: $sheetSelect)
                         }
-                        .padding(.top, imgSize * 0.5)
+                        .padding(.top, imgSize * 0.55)
                         .padding(.horizontal)
                     }
                 },
@@ -93,6 +93,7 @@ struct HomeView: View {
             )
             .sheet(isPresented: $isShowing, content: {
                 HomeSheetSelectView(isShowing: $isShowing, sheetSelect: $sheetSelect)
+                    .environmentObject(userSession)
                     .environmentObject(pokebag)
             })
         }
@@ -108,6 +109,8 @@ enum HomeSheet {
 }
 
 struct HomeSheetSelectView: View {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @Binding var isShowing: Bool
     @Binding var sheetSelect: HomeSheet
     
@@ -122,6 +125,7 @@ struct HomeSheetSelectView: View {
                 DualHomeView()
             }
         }
+        .environmentObject(userSession)
     }
 }
 
