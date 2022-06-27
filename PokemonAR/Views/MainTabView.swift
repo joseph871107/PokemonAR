@@ -10,29 +10,42 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var userSession: UserSessionModel
+    @StateObject var pokebag = PokeBagViewModel()
     
     var body: some View {
-        TabView {
-            HomeView()
-                .tabItem {
-                    Label("Home", systemImage: "house")
+        ZStack {
+            if userSession.enableBattleSheet {
+                BattleStartView()
+            } else {
+                TabView(selection: $userSession.tabSelection) {
+                    HomeView()
+                        .tabItem {
+                            Label("Home", systemImage: "house")
+                        }
+                        .tag(1)
+                    PokedexHomeView()
+                        .tabItem {
+                            Label("Pokedex", systemImage: "square.grid.3x3.fill")
+                        }
+                        .tag(2)
+                    ARViewControllerRepresentable()
+                        .environmentObject(userSession)
+                        .tabItem {
+                            Label("Catch", systemImage: "lasso")
+                        }
+                        .tag(3)
                 }
-            PokedexView()
-                .tabItem {
-                    Label("Pokedex", systemImage: "square.grid.3x3.fill")
-                }
-            JSWebViewDemoView()
-                .tabItem {
-                    Label("WebView", systemImage: "square.grid.3x3.fill")
-                }
-            ARViewControllerRepresentable()
-                .environmentObject(userSession)
-                .tabItem {
-                    Label("Catch", systemImage: "lasso")
-                }
+            }
         }
-        .edgesIgnoringSafeArea(.all)
+        .transition(.move(edge: .trailing))
+        .animation(.easeInOut)
         .environmentObject(userSession)
+        .environmentObject(pokebag)
+        .onAppear(perform: {
+            if let _ = userSession.user {
+                pokebag.updateUser(userID: userSession.user?.uid ?? "")
+            }
+        })
     }
 }
 

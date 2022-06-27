@@ -11,70 +11,93 @@
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
   </script>
   <script src="libraries/jQuery/jQuery.js"></script>
+  <script src="libraries/velocity/velocity.min.js"></script>
+  <script src="libraries/velocity/velocity.ui.min.js"></script>
+
   <script type="text/javascript" src="js/script.js"></script>
 </head>
 
 <body id="container">
-  <svg width="100%" height="100%" viewBox="0 0 800 1200" preserveAspectRatio="none" style="background-color:green"
-    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
-    <g class="game">
-      <image image-rendering="pixelated" href="images/pokemonbg.png" x="0" y="0" width="800" height="600"
-        preserveAspectRatio="none" />
-  
-      <g class="opponent" id="enemyPokemon">
-        <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/FrontSprites/ivysaur.png"
-          width="400" x="410" y="90"></image>
-  
-        <g class="stats" transform="translate(50, 50)">
-          <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
-          </rect>
-          <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
-            <image href="images/pokeball.png" width="40"></image>
-            <image href="images/pokeball.png" width="40" x="40"></image>
-            <image href="images/pokeball.png" width="40" x="80"></image>
-            <image href="images/pokeball.png" width="40" x="120"></image>
-            <image href="images/pokeball.png" width="40" x="160"></image>
-            <text class="hp-count" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">HP: 100</text>
-          </g>
-          <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
-            <text class="name" style="fill:white" x="10" y="40" font-size="30" text-anchor="start">Ivysaur</text>
-            <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
-          </g>
-        </g>
-      </g>
-  
-      <g class="player" id="myPokemon" transform="translate(0,300)">
-        <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/BackSprites/bulbasaur.png"
-          width="500" x="-50" y="-114"></image>
-  
-        <g class="stats" transform="translate(350, 150)">
-          <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
-          </rect>
-          <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
-            <image href="images/pokeball.png" width="40"></image>
-            <image href="images/pokeball.png" width="40" x="40"></image>
-            <image href="images/pokeball.png" width="40" x="80"></image>
-            <image href="images/pokeball.png" width="40" x="120"></image>
-            <image href="images/pokeball.png" width="40" x="160"></image>
-            <text class="hp-count" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">HP: 100</text>
-          </g>
-          <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
-            <text class="name" style="fill:white" x="10" y="40" font-size="30" text-anchor="start">Ivysaur</text>
-            <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
+  <div id="game_container" class="d-flex w-100 h-100 d-none">
+    <svg width="100%" height="100%" viewBox="0 0 800 1200" preserveAspectRatio="none" style="background-color:green"
+      xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
+      <g class="game">
+        <image image-rendering="pixelated" href="images/pokemonbg.png" x="0" y="0" width="800" height="600"
+          preserveAspectRatio="none" />
+    
+        <g>
+          <g class="opponent" id="enemyPokemon">
+            <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/FrontSprites/ivysaur.png"
+              width="400" x="410" y="90"></image>
+      
+            <g class="stats" transform="translate(50, 50)">
+              <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
+              </rect>
+              <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
+                <image href="images/pokeball.png" width="40"></image>
+                <image href="images/pokeball.png" width="40" x="40"></image>
+                <image href="images/pokeball.png" width="40" x="80"></image>
+                <image href="images/pokeball.png" width="40" x="120"></image>
+                <image href="images/pokeball.png" width="40" x="160"></image>
+                <text class="name" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">Ivysaur</text>
+              </g>
+              <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
+                <g transform="translate(0, 20)">
+                  <rect style="fill:white" width="260" height="20"></rect>
+                  <rect class="hp-count" style="fill:green" x="2" y="2" data-defaultwidth="255" width="255" height="15"></rect>
+                </g>
+                <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
+              </g>
+            </g>
           </g>
         </g>
+    
+        <g transform="translate(0,300)">
+          <g class="player" id="myPokemon">
+            <image class="pokemon" image-rendering="pixelated" href="../pokemon.json-master/BackSprites/bulbasaur.png"
+              width="500" x="-50" y="-114"></image>
+      
+            <g class="stats" transform="translate(350, 150)">
+              <rect rx="20" ry="20" style="fill:rgb(16,16,16); stroke:black; stroke-width: 2;" width="400" height="120">
+              </rect>
+              <g class="pokeballs" width="200" height="50" transform="translate(10, 5)">
+                <image href="images/pokeball.png" width="40"></image>
+                <image href="images/pokeball.png" width="40" x="40"></image>
+                <image href="images/pokeball.png" width="40" x="80"></image>
+                <image href="images/pokeball.png" width="40" x="120"></image>
+                <image href="images/pokeball.png" width="40" x="160"></image>
+                <text class="name" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">Ivysaur</text>
+              </g>
+              <g class="pokeballs" width="200" height="50" transform="translate(10, 55)">
+                <g transform="translate(0, 20)">
+                  <rect style="fill:white" width="260" height="20"></rect>
+                  <rect class="hp-count" style="fill:green" x="2" y="2" data-defaultwidth="255" width="255" height="15"></rect>
+                </g>
+                <text class="level" style="fill:white" x="370" y="40" font-size="30" text-anchor="end">LVL 86</text>
+              </g>
+            </g>
+          </g>
+        </g>
+        </g>
+      <g class="box" transform="translate(0, 600)">
+        <rect rx="20" ry="20" style="fill:rgb(48, 48, 48); stroke:black; stroke-width: 2;" width="800" height="600" />
+        <switch>
+          <foreignObject font-size="50" width="700" height="200" x="50" y="50" alignment-baseline="text-before-edge">
+            <span id="message" class="message" style="--n:100;" xmlns="http://www.w3.org/1999/xhtml" style="color:white;"></span>
+          </foreignObject>
+        </switch>
+            
+        <g class="actions" transform="translate(0, 300)" width="800" height="300">
+        </g>
       </g>
-    </g>
-    <g class="box" transform="translate(0, 600)">
-      <rect rx="20" ry="20" style="fill:rgb(48, 48, 48); stroke:black; stroke-width: 2;" width="800" height="600" />
-      <switch>
-        <foreignObject font-size="30" width="800" height="300" x="10" y="10" alignment-baseline="text-before-edge">
-          <p id="message" class="message" xmlns="http://www.w3.org/1999/xhtml" style="color:white;"></p>
-        </foreignObject>
-      </switch>
-          
-      <g class="actions" transform="translate(0, 300)" width="800" height="300">
-      </g>
-    </g>
-  </svg>
+    </svg>
+  </div>
+
+  <div id="loading_container" class="d-flex w-100 h-100">
+    <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" style="background-color: #e74c3c">
+      <path fill="#fff" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
+      </path>
+    </svg>
+  </div>
 </body>

@@ -63,7 +63,15 @@ struct AccountSettingView: View {
                     .padding(.top, imgSize * 0.5)
                     .padding()
                 },
-                toolbarItemsContent: MyToolBarContent()
+                toolbarItemsContent: {
+                    VStack {
+                        Text("Account Settings")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding(.top, geometry.size.height * 0.02)
+                    }
+                    .frame(height: geometry.size.height * 0.15, alignment: .top)
+                }
             )
             .environmentObject(userSession)
             .onAppear(perform: {
@@ -77,16 +85,6 @@ struct AccountSettingView: View {
                 self.gender = userSession.userModel.data.gender
             })
         }
-    }
-    
-    @ToolbarContentBuilder
-    func MyToolBarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .principal, content: {
-            Text("Account Settings")
-                .font(.title)
-                .foregroundColor(.white)
-                .padding(.top, 50)
-        })
     }
 }
 

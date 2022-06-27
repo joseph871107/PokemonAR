@@ -21,17 +21,18 @@ extension ARViewController {
     @objc func tapped(gesture: UITapGestureRecognizer) {
         // Get exact position where touch happened on screen of iPhone (2D coordinate)
         let touchPosition = gesture.location(in: sceneView)
-        let hitTestResult = sceneView.hitTest(touchPosition, types: .featurePoint)
+        let hitTestResult = sceneView.hitTest(touchPosition)
 
         if !hitTestResult.isEmpty {
             for result in hitTestResult {
-                if let anchor = result.anchor {
-                    if let id = self.checkIsPokemonAnchor(anchor: anchor) {
-                        print(Pokedex.pokedex.pokemons[id])
-                    }
+                if let id = self.checkIsPokemonNode(node: result.node) {
+                    let pokemon = Pokedex.getInfoFromId(id)
+                    
+                    onPokemonEnter(pokemon)
+                    print(pokemon)
                 }
             }
-
+            
 //            addGrass(hitTestResult: hitResult)
         }
     }
@@ -74,7 +75,7 @@ extension ARViewController {
             }
         } else {
             if let id = self.checkIsPokemonAnchor(anchor: anchor) {
-                self.addPokemonToScene(inferenceID: id, anchor: anchor, node: node)
+                self.addPokemonToScene(pokemonID: id, anchor: anchor, node: node)
             }
         }
     }
@@ -92,13 +93,29 @@ extension ARViewController {
         return nil
     }
     
-    func addPokemonToScene(inferenceID: Int, anchor: ARAnchor, node: SCNNode) {
-        guard Pokedex.pokedex.pokemons.count > inferenceID else {
-            print("Inference ID(\( inferenceID ) greater than pokemons count(\( Pokedex.pokedex.pokemons.count ))")
-            return
+    func checkIsPokemonNode(node: SCNNode, recursive: Bool = true) -> Int? {
+        if let name = node.name {
+            print("[checkIsPokemonNode] checking for name : \( name )")
+            if name.contains("Pokemon") {
+                let start = name.index(name.startIndex, offsetBy: 9)
+                if let id = Int(name.substring(with: start..<name.endIndex)) {
+                    return id
+                }
+            } else {
+                if recursive {
+                    if let parentNode = node.parent {
+                        print("[checkIsPokemonNode] continueing searching for \( parentNode )")
+                        return checkIsPokemonNode(node: parentNode, recursive: recursive)
+                    }
+                }
+            }
         }
-            
-        let pokemon = Pokedex.pokedex.pokemons[inferenceID]
+        
+        return nil
+    }
+    
+    func addPokemonToScene(pokemonID: Int, anchor: ARAnchor, node: SCNNode) {
+        let pokemon = Pokedex.getInfoFromId(pokemonID)
         
         if let url = pokemon.modelUrl {
             do {
@@ -108,6 +125,7 @@ extension ARViewController {
                 let scale: Float = 0.004
                 pokemonNode.scale = SCNVector3(x: scale, y: scale, z: scale)
                 
+                pokemonNode.name = anchor.name
                 node.addChildNode(pokemonNode)
             } catch {
                 print(String(describing: error))
@@ -157,7 +175,8 @@ extension ARViewController {
         let results: [ARRaycastResult] = sceneView.session.raycast(raycastQuery!)
         
         for hitTest in results {
-            let anchor = ARAnchor(name: "Pokemon: \( inference.index - 1 )", transform: hitTest.worldTransform)
+            let pokemonId = Pokedex.mapFromInferenceID(inferenceID: inference.index)
+            let anchor = ARAnchor(name: "Pokemon: \( pokemonId )", transform: hitTest.worldTransform)
             
             var isIntantiable = true
             
@@ -189,6 +208,7 @@ extension ARViewController {
             }
             
             if isIntantiable {
+                print(pokemonId)
                 sceneView.session.add(anchor: anchor)
             }
         }

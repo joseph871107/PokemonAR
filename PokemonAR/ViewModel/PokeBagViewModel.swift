@@ -31,6 +31,14 @@ class PokeBagViewModel: ObservableObject {
         }
     }
     
+    init() {
+        if let session = UserSessionModel.session {
+            if let _ = session.user {
+                self.updateUser(userID: session.user?.uid ?? "")
+            }
+        }
+    }
+    
     func updateUser(userID: String) {
         self.userID = userID
         
@@ -151,15 +159,15 @@ class PokeBagViewModel: ObservableObject {
             let pokemon = _pokemons[i]
             
             if let _ = pokemon.model {
-                self.addPokemon(
-                    pokemon: Pokemon(
-                        pokedexId: pokemon.id,
-                        experience: Int.random(
-                            in: 0..<5000
-                        ),
-                        displayName: Bool.random() ? UUID().uuidString : ""
-                    )
+                var pokemon = Pokemon(
+                    pokedexId: pokemon.id,
+                    experience: Int.random(
+                        in: 0..<5000
+                    ),
+                    displayName: Bool.random() ? UUID().uuidString : ""
                 )
+                pokemon.learned_skills = pokemon.info.skills.map({ Pokedex.PokemonSkillReference(id: $0.id) })
+                self.addPokemon(pokemon: pokemon)
             }
         }
     }

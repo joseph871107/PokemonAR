@@ -9,7 +9,7 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, ObservableObject {
     @IBOutlet weak var previewView: PreviewView!
     @IBOutlet weak var overlayView: OverlayView!
     @IBOutlet weak var resumeButton: UIButton!
@@ -43,6 +43,10 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     ModelDataHandler(modelFileInfo: MobileNetSSD.modelInfo, labelsFileInfo: MobileNetSSD.labelsInfo)
     var inferenceViewController: InferenceViewController?
     
+    @Published var enableBattleSheet: Bool = false
+    var onPokemonEnter: (Pokedex.PokemonInfo) -> Void = { pokemon in
+        
+    }
     
     @IBOutlet var sceneView: ARSCNView!
     

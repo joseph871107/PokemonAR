@@ -55,19 +55,16 @@ struct SignupView: View {
                     .padding()
                     .keyboardAdaptive()
                 },
-                toolbarItemsContent: MyToolBarContent()
+                toolbarItemsContent: {
+                    VStack {
+                        Text("Become a Pokémon Master!")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding(.top, geometry.size.height * 0.05)
+                    }
+                    .frame(height: geometry.size.height * 0.2, alignment: .top)
+                }
             )
-        }
-    }
-    
-    struct MyToolBarContent: ToolbarContent {
-        var body: some ToolbarContent {
-            ToolbarItem(placement: .principal, content: {
-                Text("Become a Pokémon Master!")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding(.top, 50)
-            })
         }
     }
 }

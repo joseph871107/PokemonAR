@@ -15,23 +15,17 @@ import WebKit
 import JavaScriptCore
 
 struct JSWebViewDemoView: View {
-    @State var view = JSWebView()
+    @EnvironmentObject var observableDecoder: ObservableDecoder
+    
+    @State var onEnded: (Bool) -> Void = { catched in
+        
+    }
     
     var body: some View {
         GeometryReader { geometry in
             ZStack{
                 Color.blue
-                view
-                VStack {
-                    ZStack {
-                        Color.pokemonRed.ignoresSafeArea()
-                        Text("Classic Battle")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                    }
-                    .frame(height: geometry.size.height * 0.1)
-                    Spacer()
-                }
+                JSWebView(observableDecoder: self.observableDecoder, onEnded: onEnded)
             }
         }
     }
@@ -40,11 +34,18 @@ struct JSWebViewDemoView: View {
 struct Previews_JSWebView_Previews: PreviewProvider {
     static var previews: some View {
         JSWebViewDemoView()
+            .environmentObject(ObservableDecoder())
     }
 }
 
 struct JSWebView: UIViewControllerRepresentable {
-    @State var viewController = NAHomeViewController()
+    @State var viewController: NAHomeViewController
+    
+    init(observableDecoder: ObservableDecoder, onEnded: @escaping (Bool) -> Void) {
+        self.viewController = NAHomeViewController()
+        self.viewController.observableDecoder = observableDecoder
+        self.viewController.onEnded = onEnded
+    }
     
     func makeUIViewController(context: Context) -> NAHomeViewController {
         return self.viewController
@@ -58,17 +59,28 @@ struct JSWebView: UIViewControllerRepresentable {
 }
 
 class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMessageHandler, WKUIDelegate {
+    @Published var observableDecoder: ObservableDecoder?
+    @Published var lastData: BattleInfoModel.CurrentBattle?
      
     var webView : WKWebView?
     var content : JSContext?
-    @Published var observableDecoder = ObservableDecoder()
     var subs = [AnyCancellable]()
+    
+    var onEnded: (Bool) -> Void = { catched in
+        
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        subs.append(observableDecoder.objectWillChange.sink { [self] _ in
-            self.syncBack()
+        subs.append(observableDecoder!.objectWillChange.sink { [self] changedValue in
+            if let battle = observableDecoder!.observableViewModel.data?.battle, let lastData = self.lastData {
+                if battle != lastData {
+                    print("[NAHomeViewController] - observableDecoder.objectWillChange syncBack")
+                    self.syncBack()
+                }
+            }
+            self.lastData = observableDecoder!.observableViewModel.data?.battle
         })
         
         // Create target
@@ -94,16 +106,12 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
         self.addConsolelistener()
         self.addZoomDisable()
         webView.configuration.userContentController.add(self, name: "getMessage")
+        webView.configuration.userContentController.add(self, name: "onFinishLoading")
+        webView.configuration.userContentController.add(self, name: "onFinishBattle")
         webView.configuration.userContentController.add(self, name: "observableObject")
         
         webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         self.view.addSubview(webView)
-         
-//        let btn = UIButton.init(frame: CGRect(x: 100, y: 390, width: 100, height: 50))
-//        btn.setTitleColor(.black, for: .normal)
-//        btn.setTitle("iOS call js", for: .normal)
-//        btn.addTarget(self, action: #selector(btnAction), for: .touchUpInside)
-//        self.view.addSubview(btn)
     }
     
     func addConsolelistener() {
@@ -139,14 +147,20 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
         self.webView!.configuration.userContentController.addUserScript(script)
     }
     
-    @objc func sendJSON(jsonStr: String) {
-        self.webView?.evaluateJavaScript("receiver.sendJSON(\(jsonStr))", completionHandler: { (data, err) in
+    @objc func sendJSON(jsonStr: String, identifier: String) {
+        self.webView?.evaluateJavaScript("receiver.receiveJSON(\(jsonStr), '\( identifier )')", completionHandler: { (data, err) in
             print("\(String(describing: data)),\(String(describing: err))")
         })
     }
     
     @objc func sendObservableSync(jsonStr: String) {
-        self.webView?.evaluateJavaScript("receiver.sendObservableSync(\(jsonStr))", completionHandler: { (data, err) in
+        var isStarter = true
+        if let user = UserSessionModel.session?.user {
+            isStarter = (user.uid == observableDecoder!.observableViewModel.data?.startUserID)
+        }
+        print("\( isStarter )")
+        
+        self.webView?.evaluateJavaScript("receiver.receiveObservableSync(\(jsonStr), \( isStarter ))", completionHandler: { (data, err) in
             print("\(String(describing: data)),\(String(describing: err))")
         })
     }
@@ -154,7 +168,7 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
     @objc func syncBack() {
         let encoder = JSONEncoder()
         do {
-            let encoded = try encoder.encode(observableDecoder.observableViewModel.data)
+            let encoded = try encoder.encode(observableDecoder!.observableViewModel.data)
             self.sendObservableSync(jsonStr: String(data: encoded, encoding: .utf8) ?? "")
         } catch {
             fatalError(String(describing: error))
@@ -165,11 +179,15 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
         if message.name == "logHandler" || message.name == "errorHandler" {
             let msg = "\(message.name) : \(message.body)"
             print(msg)
+        } else if message.name == "onFinishLoading" {
+            self.onFinishLoading()
+        } else if message.name == "onFinishBattle" {
+            self.onFinishBattle(catched: message.body as! Bool)
         } else {
             if message.name == "observableObject" {
                 let str = "\(message.body)"
-                
-                observableDecoder.update(str)
+                print(str)
+                observableDecoder!.update(str)
             }
         }
     }
@@ -179,16 +197,30 @@ class NAHomeViewController : UIViewController, WKNavigationDelegate, WKScriptMes
         // Dispose of any resources that can be recreated.
     }
      
+    func onFinishLoading() {
+        let pokedexURL = Bundle.main.url(forResource: "processed_pokedex", withExtension: "json", subdirectory: "pokemon.json-master")!
+        let skillsURL = Bundle.main.url(forResource: "moves", withExtension: "json", subdirectory: "pokemon.json-master")!
+        
+        self.loadJson(url: pokedexURL, callback: { pokedexJsonStr in
+            self.sendJSON(jsonStr: pokedexJsonStr, identifier: "pokedex")
+            self.loadJson(url: skillsURL, callback: { skillsJsonStr in
+                self.sendJSON(jsonStr: skillsJsonStr, identifier: "skills")
+                self.syncBack()
+            })
+        })
+    }
+    
+    func onFinishBattle(catched: Bool) {
+        self.onEnded(catched)
+    }
+    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    }
+    
+    func loadJson(url: URL, callback: @escaping (String) -> Void) {
         do {
-            let url = Bundle.main.url(forResource: "processed_pokedex", withExtension: "json", subdirectory: "pokemon.json-master")!
-            let text = try? String(contentsOf: url, encoding: .utf8)
-            if let text = text {
-                self.sendJSON(jsonStr: text)
-            }
-            
-            observableDecoder.observableViewModel.data = ObservableModel()
-            self.syncBack()
+            let text = try String(contentsOf: url, encoding: .utf8)
+            callback(text)
         } catch {
             fatalError(String(describing: error))
         }

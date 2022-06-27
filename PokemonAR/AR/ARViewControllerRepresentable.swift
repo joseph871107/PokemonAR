@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Combine
 import UIKit
 import SwiftUI
 
@@ -15,11 +16,22 @@ import ARKit
 import RealityKit
 
 struct ARViewControllerRepresentable: UIViewControllerRepresentable {
+    @EnvironmentObject var userSession: UserSessionModel
+    
     @State var viewController: ARViewController?
+    
+    @State var onPokemonEnter: (Pokedex.PokemonInfo) -> Void = { pokemon in
+        
+    }
     
     func makeUIViewController(context: Context) -> ARViewController {
         let viewController = UIStoryboard(name: "ARMain", bundle: nil).instantiateViewController(withIdentifier: "ARViewController") as! ARViewController
         self.viewController = viewController
+        viewController.onPokemonEnter = { pokemon in
+            onPokemonEnter(pokemon)
+            userSession.enableBattleSheet = true
+            userSession.battleObjectDecoder.observableViewModel.updateEnemyPokemon(pokemon: pokemon.randomlyGenerate(), computer: true)
+        }
         
         return viewController
     }
