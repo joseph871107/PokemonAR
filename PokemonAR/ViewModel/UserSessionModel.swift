@@ -181,13 +181,17 @@ class UserSessionModel: ObservableObject {
            }
            
            if let photoURL = user.photoURL {
-               self.replacePhoto(image: image, url: photoURL, completion: { result in
-                   if result.status == true {
-                       self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
-                   } else {
-                       completion(result)
-                   }
-               })
+               if photoURL.absoluteString.contains("firebasestorage") {
+                   self.replacePhoto(image: image, url: photoURL, completion: { result in
+                       if result.status == true {
+                           self.saveUserBasicInfo(displayName: user.displayName, photoURL: URL(string: result.message)!, completion: completion)
+                       } else {
+                           completion(result)
+                       }
+                   })
+               } else {
+                   self.uploadPhoto(image: image, completion: completion)
+               }
            } else {
                self.uploadPhoto(image: image, completion: { result in
                    if result.status == true {
